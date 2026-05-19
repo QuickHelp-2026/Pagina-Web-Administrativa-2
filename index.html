@@ -3614,41 +3614,42 @@ window.onload=function(){
     if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none')doLogin();
   });
 };
-  <script type="module">
+<button onclick="guardarPrueba()">Guardar prueba</button>
+
+<script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  deleteDoc,
-  doc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  getDatabase,
+  ref,
+  push,
+  set
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "TU_APIKEY",
-  authDomain: "TU_DOMINIO",
-  projectId: "TU_PROJECT_ID",
-  storageBucket: "TU_BUCKET",
-  messagingSenderId: "TU_ID",
-  appId: "TU_APP_ID"
+  apiKey: "AIzaSyCFKRi4jUKq2Jt9PJE0j2NV2Km7A36226I",
+  authDomain: "portal-quick.firebaseapp.com",
+  databaseURL: "https://portal-quick-default-rtdb.firebaseio.com",
+  projectId: "portal-quick",
+  storageBucket: "portal-quick.firebasestorage.app",
+  messagingSenderId: "1061681404991",
+  appId: "1:1061681404991:web:b862223fe2318b1b10ec8a",
+  measurementId: "G-3R5JWYQ154"
 };
 
 const app = initializeApp(firebaseConfig);
 
-const db = getFirestore(app);
+const db = getDatabase(app);
 
 window.db = db;
-window.collection = collection;
-window.addDoc = addDoc;
-window.getDocs = getDocs;
-window.deleteDoc = deleteDoc;
-window.doc = doc;
+window.ref = ref;
+window.push = push;
+window.set = set;
 
 console.log("🔥 Firebase conectado");
-  <button onclick="guardarPrueba()">Guardar prueba</button>
+
+</script>
 
 <script>
 
@@ -3664,6 +3665,8 @@ async function guardarPrueba(){
   alert("Dato guardado");
 
 }
+
 </script>
+
 </body>
 </html>
