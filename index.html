@@ -1,0 +1,2789 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUICK – Portal Administrativo</title>
+<link rel="icon" type="image/png" href="https://i.ibb.co/nstCpVSp/unnamed-removebg-preview-1.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{
+  --black:#0d0d12;
+  --black2:#12121a;
+  --black3:#1a1a25;
+  --black4:#222230;
+  --yellow:#F5C400;
+  --yellow2:#FFD700;
+  --yellow-dim:rgba(245,196,0,0.10);
+  --yellow-glow:rgba(245,196,0,0.28);
+  --accent:#7c4dff;
+  --teal:#00c9a7;
+  --coral:#ff6b6b;
+  --white:#FFFFFF;
+  --white2:#E8E9F2;
+  --grey:#8890aa;
+  --grey2:#363650;
+  --card-bg:#171722;
+  --card-bg2:#1e1e2c;
+  --border:rgba(255,255,255,0.07);
+  --border-y:rgba(245,196,0,0.20);
+  --radius:16px;
+  --radius-sm:10px;
+  --shadow:0 8px 32px rgba(0,0,0,0.6);
+  --shadow-y:0 4px 24px rgba(245,196,0,0.15);
+  --font-head:'Bebas Neue',sans-serif;
+  --font:'DM Sans',sans-serif;
+  --sidebar-w:260px;
+  --topbar-h:64px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--white);font-family:var(--font);min-height:100vh;overflow-x:hidden;}
+
+/* ──── SCROLLBAR ──── */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--black2);}
+::-webkit-scrollbar-thumb{background:var(--yellow);border-radius:3px;}
+
+/* ══════════════ LOGIN ══════════════ */
+#loginScreen{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--black);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;
+}
+.login-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245,196,0,0.08) 0%, transparent 70%),
+             radial-gradient(ellipse 40% 40% at 80% 80%, rgba(245,196,0,0.05) 0%, transparent 60%);
+}
+.login-lines{
+  position:absolute;inset:0;overflow:hidden;
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(245,196,0,0.04) 60px,rgba(245,196,0,0.04) 61px),
+                   repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(245,196,0,0.04) 60px,rgba(245,196,0,0.04) 61px);
+}
+.login-box{
+  position:relative;z-index:1;
+  width:420px;max-width:95vw;
+  background:var(--card-bg);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:48px 40px;
+  box-shadow:var(--shadow),0 0 80px rgba(245,196,0,0.07);
+}
+.login-logo{display:flex;justify-content:center;margin-bottom:32px;}
+.login-logo img{height:56px;filter:brightness(1.1);}
+.login-title{font-family:var(--font-head);font-size:28px;letter-spacing:2px;color:var(--yellow);text-align:center;margin-bottom:6px;}
+.login-sub{color:var(--grey);font-size:13px;text-align:center;margin-bottom:32px;}
+.form-group{margin-bottom:18px;}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--grey);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.form-group input,
+.form-group select,
+.form-group textarea{
+  width:100%;background:var(--black3);border:1.5px solid var(--grey2);border-radius:var(--radius-sm);
+  padding:12px 16px;color:var(--white);font-family:var(--font);font-size:14px;outline:none;
+  transition:.25s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{border-color:var(--yellow);box-shadow:0 0 0 3px var(--yellow-dim);}
+.form-group textarea{resize:vertical;min-height:80px;}
+.btn-primary{
+  width:100%;padding:14px;background:var(--yellow);color:var(--black);
+  border:none;border-radius:var(--radius-sm);font-family:var(--font);font-weight:700;font-size:15px;
+  cursor:pointer;transition:.2s;letter-spacing:.5px;
+}
+.btn-primary:hover{background:var(--yellow2);box-shadow:var(--shadow-y);transform:translateY(-1px);}
+.login-error{color:#ff4d4d;font-size:13px;text-align:center;margin-top:12px;display:none;}
+.login-demo{margin-top:24px;padding:14px;background:rgba(245,196,0,0.06);border-radius:var(--radius-sm);border:1px solid var(--border);}
+.login-demo p{font-size:12px;color:var(--grey);margin-bottom:6px;font-weight:600;letter-spacing:.5px;}
+.login-demo span{font-size:12px;color:var(--white2);display:block;margin:2px 0;}
+
+/* ══════════════ LAYOUT ══════════════ */
+#app{display:none;min-height:100vh;}
+#app.active{display:flex;}
+
+/* SIDEBAR */
+.sidebar{
+  width:var(--sidebar-w);min-height:100vh;
+  background:var(--black2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:fixed;left:0;top:0;bottom:0;z-index:100;
+  transition:.3s;
+}
+.sidebar.collapsed{width:70px;}
+.sidebar-header{
+  padding:20px 20px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+  min-height:var(--topbar-h);
+}
+.sidebar-logo{height:36px;flex-shrink:0;transition:.3s;}
+.sidebar.collapsed .sidebar-logo-text{display:none;}
+.sidebar-toggle{
+  margin-left:auto;background:none;border:none;color:var(--grey);cursor:pointer;font-size:16px;
+  width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  transition:.2s;flex-shrink:0;
+}
+.sidebar-toggle:hover{background:var(--yellow-dim);color:var(--yellow);}
+.sidebar-nav{flex:1;overflow-y:auto;padding:12px 0;}
+.nav-section-label{
+  font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--grey);padding:12px 20px 6px;
+  transition:.3s;
+}
+.sidebar.collapsed .nav-section-label{opacity:0;pointer-events:none;}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 20px;cursor:pointer;
+  border-left:3px solid transparent;
+  transition:.2s;position:relative;
+  color:var(--grey);font-size:14px;font-weight:500;
+  text-decoration:none;white-space:nowrap;overflow:hidden;
+}
+.nav-item:hover{background:var(--yellow-dim);color:var(--white);border-left-color:var(--yellow);}
+.nav-item.active{background:var(--yellow-dim);color:var(--yellow);border-left-color:var(--yellow);}
+.nav-item i{font-size:16px;flex-shrink:0;width:20px;text-align:center;}
+.nav-item span{transition:.3s;}
+.sidebar.collapsed .nav-item span{opacity:0;width:0;}
+.nav-badge{
+  margin-left:auto;background:var(--yellow);color:var(--black);
+  font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;
+}
+.sidebar-footer{
+  padding:16px 20px;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.user-avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--yellow),#e6a800);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:14px;color:var(--black);flex-shrink:0;
+}
+.user-info{overflow:hidden;transition:.3s;}
+.sidebar.collapsed .user-info{opacity:0;width:0;}
+.user-name{font-size:13px;font-weight:600;white-space:nowrap;}
+.user-role{font-size:11px;color:var(--yellow);white-space:nowrap;}
+.btn-logout{
+  margin-left:auto;background:none;border:none;color:var(--grey);cursor:pointer;
+  font-size:14px;padding:6px;border-radius:6px;transition:.2s;flex-shrink:0;
+}
+.btn-logout:hover{color:#ff4d4d;background:rgba(255,77,77,0.1);}
+
+/* TOPBAR */
+.topbar{
+  position:fixed;top:0;right:0;left:var(--sidebar-w);
+  height:var(--topbar-h);z-index:99;
+  background:rgba(10,10,10,0.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:16px;
+  padding:0 24px;transition:.3s;
+}
+.topbar.expanded{left:70px;}
+.topbar-title{font-family:var(--font-head);font-size:22px;letter-spacing:2px;color:var(--yellow);}
+.search-global{
+  flex:1;max-width:400px;margin-left:auto;
+  position:relative;display:flex;align-items:center;
+}
+.search-global input{
+  width:100%;background:var(--black3);border:1.5px solid var(--grey2);border-radius:30px;
+  padding:9px 18px 9px 40px;color:var(--white);font-family:var(--font);font-size:13px;outline:none;
+  transition:.25s;
+}
+.search-global input:focus{border-color:var(--yellow);box-shadow:0 0 0 3px var(--yellow-dim);}
+.search-global i{position:absolute;left:14px;color:var(--grey);font-size:13px;}
+.topbar-actions{display:flex;align-items:center;gap:8px;}
+.topbar-btn{
+  width:38px;height:38px;border-radius:10px;background:var(--black3);border:1px solid var(--grey2);
+  color:var(--grey);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:15px;transition:.2s;position:relative;
+}
+.topbar-btn:hover{border-color:var(--yellow);color:var(--yellow);background:var(--yellow-dim);}
+.notif-dot{
+  position:absolute;top:6px;right:6px;width:8px;height:8px;
+  background:var(--yellow);border-radius:50%;border:2px solid var(--black);
+}
+#themeToggleBtn i{transition:.3s;}
+
+/* MAIN CONTENT */
+.main{
+  margin-left:var(--sidebar-w);
+  margin-top:var(--topbar-h);
+  padding:28px 28px 60px;
+  min-height:calc(100vh - var(--topbar-h));
+
+  width:calc(100% - var(--sidebar-w));
+  max-width:100%;
+
+  overflow-x:hidden;
+  transition:.3s;
+  box-sizing:border-box;
+}
+
+.main.expanded{
+  margin-left:70px;
+  width:calc(100% - 70px);
+}
+
+/* SECTIONS */
+.section{
+  display:none;
+  animation:fadeIn .35s ease;
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+}
+.section.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ══════════════ CARDS & COMPONENTS ══════════════ */
+.card{
+  background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;transition:.25s;
+}
+.card:hover{border-color:rgba(245,196,0,0.35);}
+.card-sm{padding:18px;}
+
+/* GRID */
+.grid-2{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:20px;
+  width:100%;
+}
+
+.grid-3{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:20px;
+  width:100%;
+}
+
+.grid-4{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:18px;
+  width:100%;
+}
+/* SECTION HEADER */
+.section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:24px;flex-wrap:wrap;gap:12px;
+}
+.section-title{font-family:var(--font-head);font-size:30px;letter-spacing:2px;color:var(--white);}
+.section-title span{color:var(--yellow);}
+.section-sub{font-size:13px;color:var(--grey);margin-top:2px;}
+.btn-add{
+  display:flex;align-items:center;gap:8px;
+  background:var(--yellow);color:var(--black);border:none;
+  padding:10px 20px;border-radius:var(--radius-sm);font-family:var(--font);
+  font-weight:700;font-size:13px;cursor:pointer;transition:.2s;letter-spacing:.3px;
+}
+.btn-add:hover{background:var(--yellow2);box-shadow:var(--shadow-y);transform:translateY(-1px);}
+.btn-add:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+/* STAT CARDS */
+.stat-card{
+  background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:22px;display:flex;align-items:center;gap:18px;transition:.25s;
+  cursor:default;
+}
+.stat-card:hover{border-color:var(--yellow);transform:translateY(-2px);box-shadow:var(--shadow-y);}
+.stat-icon{
+  width:52px;height:52px;border-radius:12px;
+  background:var(--yellow-dim);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;color:var(--yellow);flex-shrink:0;
+}
+.stat-value{font-family:var(--font-head);font-size:32px;color:var(--white);line-height:1;}
+.stat-label{font-size:12px;color:var(--grey);margin-top:4px;font-weight:500;}
+
+/* QUICK ACCESS CARDS */
+.qa-card{
+  background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:10px;
+  cursor:pointer;transition:.25s;text-align:center;
+}
+.qa-card:hover{background:var(--yellow-dim);border-color:var(--yellow);transform:translateY(-3px);box-shadow:var(--shadow-y);}
+.qa-card i{font-size:28px;color:var(--yellow);}
+.qa-card span{font-size:13px;font-weight:600;color:var(--white2);}
+
+/* LINK CARDS */
+.link-card{
+  background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;display:flex;align-items:flex-start;gap:14px;
+  transition:.25s;position:relative;overflow:hidden;
+}
+.link-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--yellow);opacity:0;transition:.25s;}
+.link-card:hover{border-color:var(--yellow);box-shadow:var(--shadow-y);}
+.link-card:hover::before{opacity:1;}
+.link-icon{
+  width:44px;height:44px;border-radius:10px;
+  background:var(--yellow-dim);display:flex;align-items:center;justify-content:center;
+  font-size:20px;color:var(--yellow);flex-shrink:0;
+}
+.link-info{flex:1;min-width:0;}
+.link-title{font-weight:600;font-size:14px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.link-desc{font-size:12px;color:var(--grey);line-height:1.5;}
+.link-category{
+  font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--yellow);margin-top:6px;
+}
+.link-actions{display:flex;gap:6px;margin-top:8px;}
+.btn-icon{
+  width:30px;height:30px;border-radius:6px;background:var(--black3);border:1px solid var(--grey2);
+  color:var(--grey);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:12px;transition:.2s;
+}
+.btn-icon:hover{border-color:var(--yellow);color:var(--yellow);}
+.btn-icon.danger:hover{border-color:#ff4d4d;color:#ff4d4d;}
+.btn-open{
+  background:var(--yellow);color:var(--black);border:none;
+  padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;
+  cursor:pointer;transition:.2s;white-space:nowrap;
+}
+.btn-open:hover{background:var(--yellow2);}
+
+/* SEARCH BAR */
+.search-bar{
+  display:flex;align-items:center;gap:10px;
+  background:var(--black3);border:1.5px solid var(--grey2);border-radius:var(--radius-sm);
+  padding:10px 16px;margin-bottom:20px;transition:.25s;
+}
+.search-bar:focus-within{border-color:var(--yellow);}
+.search-bar i{color:var(--grey);font-size:14px;}
+.search-bar input{flex:1;background:none;border:none;color:var(--white);font-family:var(--font);font-size:14px;outline:none;}
+
+/* FILTERS */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.filter-btn{
+  padding:7px 16px;border-radius:30px;font-size:12px;font-weight:600;
+  border:1.5px solid var(--grey2);background:transparent;color:var(--grey);
+  cursor:pointer;transition:.2s;
+}
+.filter-btn:hover,.filter-btn.active{background:var(--yellow);color:var(--black);border-color:var(--yellow);}
+
+/* STAFF CARD */
+.staff-card{
+  background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;text-align:center;transition:.25s;position:relative;
+}
+.staff-card:hover{border-color:var(--yellow);transform:translateY(-3px);box-shadow:var(--shadow-y);}
+.staff-avatar{
+  width:72px;height:72px;border-radius:50%;border:3px solid var(--yellow);
+  object-fit:cover;margin:0 auto 14px;display:block;
+  background:var(--black3);
+}
+.staff-avatar-placeholder{
+  width:72px;height:72px;border-radius:50%;border:3px solid var(--yellow);
+  background:linear-gradient(135deg,var(--yellow-dim),var(--black3));
+  margin:0 auto 14px;display:flex;align-items:center;justify-content:center;
+  font-size:26px;color:var(--yellow);font-weight:700;
+}
+.staff-name{font-weight:700;font-size:15px;margin-bottom:4px;}
+.staff-cargo{font-size:12px;color:var(--yellow);font-weight:600;margin-bottom:8px;}
+.staff-op{font-size:11px;color:var(--grey);margin-bottom:12px;}
+.staff-contact{display:flex;flex-direction:column;gap:4px;text-align:left;}
+.staff-contact-item{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--grey2);}
+.staff-contact-item i{color:var(--yellow);width:12px;}
+.staff-card-actions{display:flex;gap:6px;justify-content:center;margin-top:14px;}
+
+/* FILE EXPLORER */
+.file-tree{
+  background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;
+}
+.file-tree-header{
+  padding:14px 20px;background:var(--black3);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;font-weight:600;font-size:14px;
+}
+.folder-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 20px;cursor:pointer;transition:.2s;
+  border-bottom:1px solid rgba(255,255,255,0.03);
+}
+.folder-item:hover{background:var(--yellow-dim);}
+.folder-item i{color:var(--yellow);font-size:16px;}
+.folder-item span{flex:1;font-size:14px;}
+.folder-item .meta{font-size:11px;color:var(--grey);}
+.folder-children{padding-left:24px;display:none;}
+.folder-children.open{display:block;}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);
+  z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--card-bg);border:1px solid var(--border);border-radius:20px;
+  width:100%;max-width:540px;max-height:90vh;overflow-y:auto;
+  box-shadow:var(--shadow),0 0 60px rgba(245,196,0,0.1);
+  animation:modalIn .3s ease;
+}
+@keyframes modalIn{from{transform:scale(.92);opacity:0;}to{transform:scale(1);opacity:1;}}
+.modal-header{
+  padding:24px 28px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.modal-title{font-family:var(--font-head);font-size:22px;letter-spacing:1.5px;color:var(--yellow);}
+.modal-close{
+  background:none;border:none;color:var(--grey);cursor:pointer;font-size:18px;
+  width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  transition:.2s;
+}
+.modal-close:hover{background:rgba(255,77,77,0.15);color:#ff4d4d;}
+.modal-body{padding:24px 28px;}
+.modal-footer{
+  padding:18px 28px 24px;border-top:1px solid var(--border);
+  display:flex;gap:10px;justify-content:flex-end;
+}
+.btn-cancel{
+  padding:10px 20px;background:transparent;border:1.5px solid var(--grey2);
+  color:var(--grey);border-radius:var(--radius-sm);font-family:var(--font);
+  font-size:13px;cursor:pointer;transition:.2s;
+}
+.btn-cancel:hover{border-color:var(--white);color:var(--white);}
+.btn-save{
+  padding:10px 24px;background:var(--yellow);color:var(--black);
+  border:none;border-radius:var(--radius-sm);font-family:var(--font);
+  font-weight:700;font-size:13px;cursor:pointer;transition:.2s;
+}
+.btn-save:hover{background:var(--yellow2);box-shadow:var(--shadow-y);}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;}
+.toast{
+  display:flex;align-items:center;gap:12px;
+  background:var(--card-bg);border:1px solid var(--border);border-radius:12px;
+  padding:14px 18px;min-width:280px;max-width:380px;
+  box-shadow:var(--shadow);animation:toastIn .3s ease;
+}
+.toast.success{border-color:var(--yellow);}
+.toast.error{border-color:#ff4d4d;}
+.toast i{font-size:16px;}
+.toast.success i{color:var(--yellow);}
+.toast.error i{color:#ff4d4d;}
+.toast span{font-size:13px;font-weight:500;flex:1;}
+@keyframes toastIn{from{transform:translateX(100px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+
+/* ANNOUNCEMENT */
+.announcement{
+  background:linear-gradient(135deg,rgba(245,196,0,0.12),rgba(245,196,0,0.04));
+  border:1px solid var(--yellow);border-radius:var(--radius);
+  padding:18px 22px;display:flex;align-items:flex-start;gap:14px;margin-bottom:20px;
+}
+.announcement i{color:var(--yellow);font-size:18px;margin-top:2px;}
+.announcement-text{font-size:13px;color:var(--white2);line-height:1.6;}
+.announcement-text strong{color:var(--yellow);}
+
+/* CALENDAR */
+.cal-grid{
+  display:grid;grid-template-columns:repeat(7,1fr);gap:2px;
+  background:var(--black3);border-radius:var(--radius-sm);overflow:hidden;
+}
+.cal-day-header{
+  padding:8px;text-align:center;font-size:11px;font-weight:700;
+  letter-spacing:1px;color:var(--grey);background:var(--black2);
+}
+.cal-day{
+  padding:8px 6px;background:var(--card-bg);min-height:56px;
+  font-size:12px;cursor:pointer;transition:.2s;position:relative;
+}
+.cal-day:hover{background:var(--yellow-dim);}
+.cal-day.today{background:rgba(245,196,0,0.15);border:1px solid var(--yellow);}
+.cal-day.other-month{opacity:.3;}
+.cal-day .day-num{font-weight:600;color:var(--white2);}
+.cal-day .event-dot{
+  width:5px;height:5px;border-radius:50%;background:var(--yellow);
+  display:inline-block;margin-top:3px;
+}
+
+/* BIRTHDAY CARD */
+.bday-card{
+  background:linear-gradient(135deg,rgba(245,196,0,0.1),rgba(245,196,0,0.03));
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px;display:flex;align-items:center;gap:14px;
+  transition:.25s;
+}
+.bday-card:hover{border-color:var(--yellow);}
+.bday-icon{
+  width:48px;height:48px;border-radius:12px;
+  background:var(--yellow-dim);display:flex;align-items:center;justify-content:center;
+  font-size:22px;color:var(--yellow);flex-shrink:0;
+}
+.bday-name{font-weight:700;font-size:14px;}
+.bday-date{font-size:12px;color:var(--yellow);}
+.bday-days{font-size:11px;color:var(--grey);}
+
+/* DESCANSO CALENDAR */
+.schedule-grid{display:grid;grid-template-columns:120px repeat(7,1fr);gap:1px;background:var(--black3);}
+.sch-header{background:var(--black2);padding:10px;text-align:center;font-size:11px;font-weight:700;color:var(--grey);}
+.sch-person{background:var(--card-bg);padding:10px;font-size:12px;font-weight:600;}
+.sch-cell{background:var(--card-bg);padding:6px;transition:.2s;min-height:44px;display:flex;align-items:center;justify-content:center;}
+.sch-cell:hover{background:var(--black4);}
+.sch-cell.rest{background:rgba(245,196,0,0.18);}
+.sch-cell.work{background:rgba(34,221,84,0.1);}
+/* descanso list scrollbar */
+#descansoList::-webkit-scrollbar{width:4px;}
+#descansoList::-webkit-scrollbar-thumb{background:var(--grey2);border-radius:2px;}
+.rest-badge{
+  background:var(--yellow);color:var(--black);font-size:9px;font-weight:700;
+  padding:2px 6px;border-radius:4px;display:inline-block;
+}
+.work-badge{
+  background:rgba(34,221,84,0.25);color:#22dd54;font-size:9px;font-weight:700;
+  padding:2px 6px;border-radius:4px;display:inline-block;
+}
+
+/* REGLAMENTO */
+.reg-layout{display:grid;grid-template-columns:240px 1fr;gap:20px;align-items:start;}
+.reg-nav{
+  background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px;position:sticky;top:90px;max-height:calc(100vh - 110px);overflow-y:auto;
+}
+.reg-nav-item{
+  display:block;padding:8px 12px;border-radius:var(--radius-sm);
+  font-size:13px;cursor:pointer;transition:.2s;color:var(--grey);margin-bottom:2px;
+}
+.reg-nav-item:hover,
+.reg-nav-item.active{background:var(--yellow-dim);color:var(--yellow);}
+.reg-content{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:32px;}
+.reg-content h2{font-family:var(--font-head);font-size:22px;letter-spacing:1px;color:var(--yellow);margin:28px 0 12px;border-bottom:1px solid var(--border);padding-bottom:8px;}
+.reg-content h2:first-child{margin-top:0;}
+.reg-content h3{font-size:14px;font-weight:700;color:var(--white);margin:18px 0 8px;}
+.reg-content p{font-size:13px;color:var(--white2);line-height:1.8;margin-bottom:12px;}
+.reg-content .article{margin-bottom:20px;padding:16px;background:var(--black3);border-radius:var(--radius-sm);border-left:3px solid var(--yellow);}
+.highlight{background:rgba(245,196,0,0.35);color:var(--black);border-radius:3px;padding:1px 3px;}
+@media(max-width:800px){.reg-layout{grid-template-columns:1fr;}.reg-nav{position:static;max-height:200px;}}
+
+/* DARK/LIGHT toggle */
+body.light-mode{
+  --black:#f2f3f8;--black2:#e8eaf2;--black3:#dde0ee;--black4:#cdd1e8;
+  --card-bg:#ffffff;--card-bg2:#f8f9ff;
+  --white:#1a1d30;--white2:#2c3060;--grey:#6a70a0;--grey2:#9097c0;
+  --border:rgba(60,70,160,0.14);--border-y:rgba(245,196,0,0.35);
+  --shadow:0 4px 20px rgba(60,70,140,0.10);
+}
+body.light-mode .sidebar{background:linear-gradient(180deg,#e8eaf2,#dde0ee)!important;}
+body.light-mode .topbar{background:rgba(242,243,248,0.92)!important;border-color:rgba(60,70,160,0.12)!important;}
+body.light-mode .card,body.light-mode .link-card,body.light-mode .stat-card,
+body.light-mode .staff-card,body.light-mode .bday-card,body.light-mode .reg-content,
+body.light-mode .reg-nav,body.light-mode .file-tree,body.light-mode .modal{
+  border-color:rgba(60,70,160,0.18)!important;
+  box-shadow:0 2px 14px rgba(60,70,160,0.08)!important;
+}
+body.light-mode .search-bar{background:#f0f2ff;border-color:rgba(60,70,160,0.22)!important;}
+body.light-mode .search-global input,body.light-mode .form-group input,
+body.light-mode .form-group select,body.light-mode .form-group textarea{
+  background:#f0f2ff!important;border-color:rgba(60,70,160,0.22)!important;color:#1a1d30!important;
+}
+body.light-mode .filter-btn{background:#e8eaf2;border-color:rgba(60,70,160,0.25);color:#6a70a0;}
+body.light-mode .btn-icon{background:#e8eaf2;border-color:rgba(60,70,160,0.2);color:#6a70a0;}
+body.light-mode .cal-day{background:#fff;border:1px solid rgba(60,70,160,0.08);}
+body.light-mode .cal-day-header{background:#e8eaf2;color:#6a70a0;}
+body.light-mode .cal-grid{background:#dde0ee;}
+body.light-mode .nav-item{color:#6a70a0;}
+body.light-mode .schedule-grid{background:#dde0ee;}
+body.light-mode .sch-cell,body.light-mode .sch-person{background:#fff;border:1px solid rgba(60,70,160,0.08);}
+body.light-mode .sch-header{background:#e8eaf2;}
+body.light-mode .hsq-fixed-card{background:#fff!important;border-color:rgba(60,70,160,0.18)!important;}
+body.light-mode .qa-card{background:#f0f2ff!important;}
+
+/* MOBILE */
+@media(max-width:768px){
+  :root{--sidebar-w:260px;}
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.mobile-open{transform:translateX(0);}
+  .main,
+  .topbar{margin-left:0!important;left:0!important;}
+  .topbar{left:0;}
+  .hamburger{display:flex!important;}
+  .grid-4,
+  .grid-3{grid-template-columns:1fr 1fr;}
+}
+
+.hamburger{
+  display:none;width:38px;height:38px;border-radius:10px;background:var(--black3);
+  border:1px solid var(--grey2);color:var(--grey);cursor:pointer;
+  align-items:center;justify-content:center;font-size:16px;
+}
+
+/* HSQ */
+.hsq-fixed-card{
+  background:linear-gradient(135deg,rgba(245,196,0,0.15),rgba(245,196,0,0.04));
+  border:1.5px solid var(--yellow);border-radius:var(--radius);padding:22px;
+  display:flex;align-items:center;gap:16px;cursor:pointer;transition:.25s;
+}
+.hsq-fixed-card:hover{box-shadow:var(--shadow-y);transform:translateY(-2px);}
+.hsq-fixed-card i{font-size:28px;color:var(--yellow);}
+.hsq-fixed-card h3{font-size:15px;font-weight:700;margin-bottom:4px;}
+.hsq-fixed-card p{font-size:12px;color:var(--grey);}
+
+/* EMPTY STATE */
+.empty-state{
+  text-align:center;padding:60px 20px;color:var(--grey);
+}
+.empty-state i{font-size:48px;color:var(--grey2);margin-bottom:16px;display:block;}
+.empty-state p{font-size:14px;}
+
+/* PROGRESS */
+.progress-bar{height:6px;background:var(--black3);border-radius:3px;overflow:hidden;margin-top:8px;}
+.progress-fit{height:100%;background:linear-gradient(90deg,var(--yellow),var(--yellow2));border-radius:3px;transition:.8s;}
+
+/* TAG */
+.tag{
+  display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;
+  background:var(--yellow-dim);color:var(--yellow);border:1px solid var(--border);margin:2px;
+}
+  html,
+body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+.main,
+.section,
+.card,
+.grid-2,
+.grid-4{
+  max-width:100%;
+}
+
+.grid-2,
+.grid-4{
+  overflow:hidden;
+}
+
+/* ── CALENDARIO MEJORADO ── */
+.cal-dots{display:flex;flex-wrap:wrap;gap:2px;margin-top:3px;min-height:10px;}
+.cal-event-pill{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;display:inline-flex;align-items:center;}
+.cal-nav-btn{background:none;border:1px solid var(--grey2);color:var(--grey);width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:10px;display:inline-flex;align-items:center;justify-content:center;transition:.2s;}
+.cal-nav-btn:hover{border-color:var(--yellow);color:var(--yellow);}
+
+/* ── STAT CARDS COLOREADAS ── */
+.stat-card:nth-child(2) .stat-icon{background:rgba(124,77,255,0.12)!important;color:#a97fff!important;border-color:rgba(124,77,255,0.2)!important;}
+.stat-card:nth-child(3) .stat-icon{background:rgba(0,201,167,0.12)!important;color:#00c9a7!important;border-color:rgba(0,201,167,0.2)!important;}
+.stat-card:nth-child(4) .stat-icon{background:rgba(255,107,107,0.12)!important;color:#ff6b6b!important;border-color:rgba(255,107,107,0.2)!important;}
+.stat-card:nth-child(2) .stat-value{color:#a97fff;}
+.stat-card:nth-child(3) .stat-value{color:#00c9a7;}
+.stat-card:nth-child(4) .stat-value{color:#ff6b6b;}
+.stat-card{box-shadow:0 2px 14px rgba(0,0,0,0.3);}
+.stat-card:hover{border-color:var(--border-y)!important;}
+
+/* ── CARD MEJORAS ── */
+.card{box-shadow:0 2px 16px rgba(0,0,0,0.28);}
+.link-card{box-shadow:0 2px 12px rgba(0,0,0,0.22);}
+.staff-card{box-shadow:0 2px 16px rgba(0,0,0,0.28);overflow:hidden;}
+.sidebar{background:linear-gradient(180deg,var(--black2) 0%,var(--black) 100%)!important;}
+.qa-card{background:var(--card-bg2,#1e1e2c)!important;box-shadow:0 2px 12px rgba(0,0,0,0.2);}
+.hsq-fixed-card{background:linear-gradient(135deg,var(--card-bg2,#1e1e2c),var(--card-bg))!important;border-color:var(--border)!important;}
+.hsq-fixed-card:hover{border-color:var(--border-y)!important;box-shadow:var(--shadow-y)!important;transform:translateY(-2px)!important;}
+.announcement{background:linear-gradient(135deg,rgba(245,196,0,0.07),rgba(124,77,255,0.04))!important;border-color:rgba(245,196,0,0.25)!important;}
+
+/* ── IA CHAT ── */
+@keyframes blink{0%,100%{opacity:.25;}50%{opacity:1;}}
+#iaMessages::-webkit-scrollbar{width:4px;}
+#iaMessages::-webkit-scrollbar-thumb{background:var(--grey2);border-radius:2px;}
+.ia-msg-user{display:flex;justify-content:flex-end;margin-bottom:10px;}
+.ia-msg-bot{display:flex;justify-content:flex-start;margin-bottom:10px;}
+.ia-bubble-user{max-width:82%;padding:10px 14px;border-radius:14px 14px 2px 14px;background:var(--yellow);color:var(--black);font-size:13px;line-height:1.6;}
+.ia-bubble-bot{max-width:88%;padding:10px 14px;border-radius:14px 14px 14px 2px;background:var(--black3);color:var(--white);font-size:13px;line-height:1.6;white-space:pre-wrap;}
+
+/* ── CONFIG SECTION ── */
+.cfg-block{background:var(--black3);border-radius:var(--radius-sm);padding:16px;border:1px solid var(--border);margin-bottom:14px;}
+.cfg-block-label{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--grey);text-transform:uppercase;margin-bottom:12px;}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="loginScreen">
+  <div class="login-bg"></div>
+  <div class="login-lines"></div>
+  <div class="login-box">
+    <div class="login-logo">
+      <img 
+  src="https://i.ibb.co/DfnfdXpf/LOGO-BLACK-QUICK-e1717304365618-removebg-preview.png" 
+  alt="QUICK"
+  class="quick-logo"
+>
+    </div>
+    <div class="login-title">Portal Administrativo</div>
+    <div class="login-sub">Acceso exclusivo para personal QUICK</div>
+    <div class="form-group">
+      <label>Usuario</label>
+      <input type="text" id="loginUser" placeholder="usuario@quick.com" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" id="loginPass" placeholder="••••••••">
+    </div>
+    <div class="form-group">
+      <label>Rol</label>
+      <select id="loginRole">
+        <option value="admin">Administrador</option>
+        <option value="coordinador">Coordinador</option>
+        <option value="visualizador">Visualizador</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="doLogin()"><i class="fa fa-sign-in-alt" style="margin-right:8px;"></i>Ingresar al Portal</button>
+    <div class="login-error" id="loginError"><i class="fa fa-exclamation-circle"></i> Credenciales incorrectas</div>
+    <div class="login-demo" style="display:none;">
+      <p>CREDENCIALES DE DEMO</p>
+      <span>🔑 Admin: <strong>admin</strong> / <strong>quick2024</strong></span>
+      <span>👤 Coordinador: <strong>coord</strong> / <strong>quick123</strong></span>
+      <span>👁️ Visualizador: <strong>viewer</strong> / <strong>quick123</strong></span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="app">
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <img 
+  src="https://i.ibb.co/DfnfdXpf/LOGO-BLACK-QUICK-e1717304365618-removebg-preview.png" 
+  alt="QUICK"
+  class="sidebar-logo"
+>
+    <button class="sidebar-toggle" onclick="toggleSidebar()" title="Colapsar menú"><i class="fa fa-bars"></i></button>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section-label">PRINCIPAL</div>
+    <div class="nav-item active" onclick="goTo('dashboard')"><i class="fa fa-home"></i><span>Dashboard</span></div>
+    <div class="nav-section-label">ENLACES</div>
+    <div class="nav-item" onclick="goTo('links-admin')"><i class="fa fa-link"></i><span>Links Administrativos</span></div>
+    <div class="nav-item" onclick="goTo('links-gestion')"><i class="fa fa-tasks"></i><span>Links de Gestión</span></div>
+    <div class="nav-section-label">OPERATIVO</div>
+    <div class="nav-item" onclick="goTo('hsq')"><i class="fa fa-shield-alt"></i><span>HSQ</span></div>
+    <div class="nav-item" onclick="goTo('documentos')"><i class="fa fa-folder"></i><span>Documentos</span></div>
+    <div class="nav-item" onclick="goTo('reglamento')"><i class="fa fa-book"></i><span>Reglamento Interno</span></div>
+    <div class="nav-section-label">PERSONAL</div>
+    <div class="nav-item" onclick="goTo('area-admin')"><i class="fa fa-users"></i><span>Área Administrativa</span></div>
+    <div class="nav-item" onclick="goTo('descansos')"><i class="fa fa-moon"></i><span>Descansos</span></div>
+    <div class="nav-item" onclick="goTo('fechas')"><i class="fa fa-birthday-cake"></i><span>Fechas Especiales</span><div class="nav-badge" id="bdayBadge">0</div></div>
+    <div class="nav-section-label">SISTEMA</div>
+    <div class="nav-item" id="navConfig" onclick="goTo('configuracion')"><i class="fa fa-cog"></i><span>Configuración</span></div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-avatar" id="userAvatarSide">A</div>
+    <div class="user-info">
+      <div class="user-name" id="userNameSide">Administrador</div>
+      <div class="user-role" id="userRoleSide">Admin</div>
+    </div>
+    <button class="btn-logout" onclick="doLogout()" title="Cerrar sesión"><i class="fa fa-sign-out-alt"></i></button>
+  </div>
+</nav>
+
+<!-- TOPBAR -->
+<header class="topbar" id="topbar">
+  <button class="hamburger" id="hamburger" onclick="toggleMobileSidebar()"><i class="fa fa-bars"></i></button>
+  <div class="topbar-title" id="topbarTitle">DASHBOARD</div>
+  <div class="search-global">
+    <i class="fa fa-search"></i>
+    <input type="text" placeholder="Buscar en todo el portal..." oninput="globalSearch(this.value)" id="globalSearchInput">
+  </div>
+  <div class="topbar-actions">
+    <button class="topbar-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Cambiar tema"><i class="fa fa-moon"></i></button>
+    <button class="topbar-btn" onclick="showNotifications()" title="Notificaciones"><i class="fa fa-bell"></i><div class="notif-dot"></div></button>
+    <button class="topbar-btn" title="Perfil"><div class="user-avatar" id="userAvatarTop" style="width:28px;height:28px;font-size:12px;">A</div></button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main" id="main">
+
+<!-- ══ DASHBOARD ══ -->
+<section class="section active" id="sec-dashboard">
+  <div class="announcement">
+    <i class="fa fa-bullhorn"></i>
+    <div class="announcement-text"><strong>Bienvenido al Portal QUICK.</strong> Plataforma corporativa administrativa centralizada. Accede a todos los recursos desde un solo lugar.</div>
+  </div>
+  <div class="section-header">
+    <div><div class="section-title">Hola, <span id="greetName">Admin</span> 👋</div><div class="section-sub" id="greetDate">Cargando fecha...</div></div>
+  </div>
+
+  <!-- STATS -->
+  <div class="grid-4" style="margin-bottom:24px;">
+    <div class="stat-card"><div class="stat-icon"><i class="fa fa-link"></i></div><div><div class="stat-value" id="statLinks">0</div><div class="stat-label">Links Totales</div></div></div>
+    <div class="stat-card"><div class="stat-icon"><i class="fa fa-users"></i></div><div><div class="stat-value" id="statStaff">0</div><div class="stat-label">Colaboradores</div></div></div>
+    <div class="stat-card"><div class="stat-icon"><i class="fa fa-folder"></i></div><div><div class="stat-value" id="statDocs">0</div><div class="stat-label">Documentos</div></div></div>
+    <div class="stat-card"><div class="stat-icon"><i class="fa fa-birthday-cake"></i></div><div><div class="stat-value" id="statBday">0</div><div class="stat-label">Cumpleaños este mes</div></div></div>
+  </div>
+
+  <!-- QUICK ACCESS -->
+  <div class="card" style="margin-bottom:24px;">
+    <h3 style="font-family:var(--font-head);font-size:18px;letter-spacing:1px;margin-bottom:18px;color:var(--yellow);">ACCESOS RÁPIDOS</h3>
+    <div class="grid-4">
+      <div class="qa-card" onclick="goTo('links-admin')"><i class="fa fa-link"></i><span>Links Admin</span></div>
+      <div class="qa-card" onclick="goTo('links-gestion')"><i class="fa fa-tasks"></i><span>Links Gestión</span></div>
+      <div class="qa-card" onclick="goTo('hsq')"><i class="fa fa-shield-alt"></i><span>HSQ</span></div>
+      <div class="qa-card" onclick="goTo('documentos')"><i class="fa fa-folder-open"></i><span>Documentos</span></div>
+      <div class="qa-card" onclick="goTo('reglamento')"><i class="fa fa-book"></i><span>Reglamento</span></div>
+      <div class="qa-card" onclick="goTo('area-admin')"><i class="fa fa-id-card"></i><span>Área Admin</span></div>
+      <div class="qa-card" onclick="goTo('descansos')"><i class="fa fa-moon"></i><span>Descansos</span></div>
+      <div class="qa-card" onclick="goTo('fechas')"><i class="fa fa-birthday-cake"></i><span>Cumpleaños</span></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- CALENDARIO -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap;">
+        <h3 style="font-family:var(--font-head);font-size:18px;letter-spacing:1px;color:var(--yellow);margin:0;">CALENDARIO</h3>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button class="cal-nav-btn" onclick="calMonthOffset--;renderCalendar()" title="Mes anterior"><i class="fa fa-chevron-left"></i></button>
+          <span id="calMonthYear" style="font-size:12px;color:var(--grey);font-weight:600;min-width:115px;text-align:center;"></span>
+          <button class="cal-nav-btn" onclick="calMonthOffset++;renderCalendar()" title="Mes siguiente"><i class="fa fa-chevron-right"></i></button>
+          <button class="cal-nav-btn" onclick="calMonthOffset=0;renderCalendar()" title="Hoy" style="padding:0 7px;width:auto;font-size:9px;letter-spacing:.5px;">HOY</button>
+        </div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;">
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--grey);"><span style="width:7px;height:7px;border-radius:50%;background:var(--yellow);display:inline-block;"></span>Fechas especiales</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--grey);"><span class="cal-event-pill" style="background:rgba(245,196,0,0.2);color:var(--yellow);border:1px solid rgba(245,196,0,0.4);">D</span>Descanso</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--grey);"><span class="cal-event-pill" style="background:rgba(34,221,84,0.2);color:#22dd54;border:1px solid rgba(34,221,84,0.4);">T</span>Trabajo</span>
+      </div>
+    </div>
+    <!-- NOVEDADES -->
+    <div class="card">
+      <h3 style="font-family:var(--font-head);font-size:18px;letter-spacing:1px;margin-bottom:16px;color:var(--yellow);">PRÓXIMOS CUMPLEAÑOS</h3>
+      <div id="upcomingBdays"><div class="empty-state" style="padding:30px 20px;"><i class="fa fa-birthday-cake"></i><p>Sin cumpleaños próximos registrados</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ LINKS ADMIN ══ -->
+<section class="section" id="sec-links-admin">
+  <div class="section-header">
+    <div><div class="section-title">Links <span>Administrativos</span></div><div class="section-sub">Enlace a plataformas y sistemas corporativos</div></div>
+    <button class="btn-add" id="btnAddLinkAdmin" onclick="openModal('modalLinkAdmin')"><i class="fa fa-plus"></i> Agregar Link</button>
+  </div>
+  <div class="search-bar"><i class="fa fa-search"></i><input type="text" placeholder="Buscar links administrativos..." oninput="filterLinks('links-admin',this.value)"></div>
+  <div class="filters" id="filtersLinkAdmin"></div>
+  <div class="grid-3" id="linksAdminGrid"></div>
+</section>
+
+<!-- ══ LINKS GESTIÓN ══ -->
+<section class="section" id="sec-links-gestion">
+  <div class="section-header">
+    <div><div class="section-title">Links de <span>Gestión</span></div><div class="section-sub">Formularios y procesos internos QUICK</div></div>
+    <button class="btn-add" id="btnAddLinkGestion" onclick="openModal('modalLinkGestion')"><i class="fa fa-plus"></i> Agregar Link</button>
+  </div>
+  <div class="search-bar"><i class="fa fa-search"></i><input type="text" placeholder="Buscar links de gestión..." oninput="filterLinks('links-gestion',this.value)"></div>
+  <div class="filters" id="filtersLinkGestion"></div>
+  <div class="grid-3" id="linksGestionGrid"></div>
+</section>
+
+<!-- ══ HSQ ══ -->
+<section class="section" id="sec-hsq">
+  <div class="section-header">
+    <div><div class="section-title">HSQ – <span>Salud & Seguridad</span></div><div class="section-sub">Gestión de salud, seguridad y calidad</div></div>
+    <button class="btn-add" id="btnAddHSQ" onclick="openModal('modalHSQ')"><i class="fa fa-plus"></i> Agregar Elemento</button>
+  </div>
+  <!-- FIXED LINKS -->
+  <div class="grid-2" style="margin-bottom:24px;">
+    <div style="position:relative;">
+      <div class="hsq-fixed-card" onclick="openHsqFixed('preop')">
+        <i class="fa fa-motorcycle"></i>
+        <div><h3>Preoperacional</h3><p id="hsqDesc_preop">Registro preoperacional</p></div>
+        <i class="fa fa-external-link-alt" style="margin-left:auto;font-size:14px;color:var(--grey);"></i>
+      </div>
+      <button class="btn-icon" id="btnEditPreop" onclick="editHsqFixed('preop');event.stopPropagation();" title="Editar link" style="position:absolute;top:8px;right:8px;display:none;"><i class="fa fa-pen"></i></button>
+    </div>
+    <div style="position:relative;">
+      <div class="hsq-fixed-card" onclick="openHsqFixed('limpieza')">
+        <i class="fa fa-soap"></i>
+        <div><h3>Lavado y Desinfección de Motos</h3><p id="hsqDesc_limpieza">Registro de limpieza y desinfección</p></div>
+        <i class="fa fa-external-link-alt" style="margin-left:auto;font-size:14px;color:var(--grey);"></i>
+      </div>
+      <button class="btn-icon" id="btnEditLimpieza" onclick="editHsqFixed('limpieza');event.stopPropagation();" title="Editar link" style="position:absolute;top:8px;right:8px;display:none;"><i class="fa fa-pen"></i></button>
+    </div>
+  </div>
+  <div class="search-bar"><i class="fa fa-search"></i><input type="text" placeholder="Buscar capacitaciones y anuncios HSQ..." oninput="filterHSQ(this.value)"></div>
+  <div class="grid-3" id="hsqGrid"></div>
+</section>
+
+<!-- ══ DOCUMENTOS ══ -->
+<section class="section" id="sec-documentos">
+  <div class="section-header">
+    <div><div class="section-title">Gestor <span>Documental</span></div><div class="section-sub">Organiza y gestiona todos los documentos corporativos</div></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-add" id="btnAddFolder" onclick="openModal('modalFolder')" style="background:var(--black3);color:var(--yellow);border:1.5px solid var(--yellow);"><i class="fa fa-folder-plus"></i> Nueva Carpeta</button>
+      <button class="btn-add" id="btnUploadDoc" onclick="openModal('modalUploadDoc')"><i class="fa fa-upload"></i> Subir Documento</button>
+    </div>
+  </div>
+  <div class="grid-2" style="align-items:start;">
+    <div class="file-tree">
+      <div class="file-tree-header"><i class="fa fa-folder" style="color:var(--yellow);"></i> Estructura de Carpetas</div>
+      <div id="folderTree"></div>
+    </div>
+    <div>
+      <div class="search-bar"><i class="fa fa-search"></i><input type="text" placeholder="Buscar documentos..." oninput="filterDocs(this.value)"></div>
+      <div id="docsGrid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ REGLAMENTO ══ -->
+<section class="section" id="sec-reglamento">
+  <div class="section-header">
+    <div><div class="section-title">Reglamento <span>Interno</span></div><div class="section-sub">Normativa interna de QUICK</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <button class="btn-add" onclick="openModal('modalRegIA')" style="background:linear-gradient(135deg,#7c4dff,#5533bb);"><i class="fa fa-robot"></i> Consultar IA</button>
+      <a href="https://drive.google.com/file/d/1wolcz6VH6okNrTBcgvqnaLRlMoughqlP/view" target="_blank" class="btn-add" style="text-decoration:none;background:var(--black3);color:var(--yellow);border:1.5px solid var(--border-y);"><i class="fa fa-download"></i> Descargar PDF</a>
+    </div>
+  </div>
+  <div class="search-bar" style="margin-bottom:16px;">
+    <i class="fa fa-search"></i>
+    <input type="text" placeholder="Buscar en el reglamento..." oninput="searchReglamento(this.value)" id="regSearch">
+    <span id="regSearchCount" style="font-size:12px;color:var(--grey);white-space:nowrap;"></span>
+  </div>
+  <div class="reg-layout">
+    <div class="reg-nav" id="regNav"></div>
+    <div class="reg-content" id="regContent"></div>
+  </div>
+</section>
+
+<!-- ══ ÁREA ADMIN ══ -->
+<section class="section" id="sec-area-admin">
+  <div class="section-header">
+    <div><div class="section-title">Directorio <span>Corporativo</span></div><div class="section-sub">Colaboradores y personal administrativo</div></div>
+    <button class="btn-add" id="btnAddStaff" onclick="openModal('modalStaff')"><i class="fa fa-user-plus"></i> Agregar Personal</button>
+  </div>
+  <div class="search-bar"><i class="fa fa-search"></i><input type="text" placeholder="Buscar por nombre, cargo u operación..." oninput="filterStaff(this.value)"></div>
+  <div class="filters" id="filtersStaff"></div>
+  <div class="grid-4" id="staffGrid"></div>
+</section>
+
+<!-- ══ DESCANSOS ══ -->
+<section class="section" id="sec-descansos">
+  <div class="section-header">
+    <div><div class="section-title">Programación de <span>Turnos</span></div><div class="section-sub">Gestión de descansos y turnos de coordinadores</div></div>
+    <button class="btn-add" id="btnAddDescanso" onclick="abrirModalDescanso()"><i class="fa fa-plus"></i> Agregar Turno</button>
+  </div>
+  <div class="grid-2" style="gap:20px;align-items:start;">
+    <!-- CALENDARIO SEMANAL -->
+    <div class="card" style="overflow-x:auto;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+        <h3 style="font-family:var(--font-head);font-size:17px;letter-spacing:1px;color:var(--yellow);margin:0;" id="descWeekTitle">SEMANA ACTUAL</h3>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-icon" onclick="changeWeek(-1)" title="Semana anterior"><i class="fa fa-chevron-left"></i></button>
+          <button class="btn-icon" onclick="changeWeek(0)" title="Hoy" style="font-size:9px;width:auto;padding:0 8px;">HOY</button>
+          <button class="btn-icon" onclick="changeWeek(1)" title="Semana siguiente"><i class="fa fa-chevron-right"></i></button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;"><div class="schedule-grid" id="scheduleGrid"></div></div>
+      <div style="display:flex;gap:14px;margin-top:14px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--grey2);"><div style="width:12px;height:12px;background:rgba(245,196,0,0.25);border-radius:3px;border:1px solid rgba(245,196,0,0.4);"></div>Descanso</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--grey2);"><div style="width:12px;height:12px;background:rgba(34,221,84,0.2);border-radius:3px;border:1px solid rgba(34,221,84,0.4);"></div>Trabajo 8h</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--grey2);"><div style="width:12px;height:12px;background:rgba(77,159,255,0.2);border-radius:3px;border:1px solid rgba(77,159,255,0.4);"></div>Trabajo 16h</div>
+      </div>
+    </div>
+    <!-- LISTA DE TURNOS REGISTRADOS -->
+    <div class="card">
+      <h3 style="font-family:var(--font-head);font-size:17px;letter-spacing:1px;color:var(--yellow);margin-bottom:14px;">TURNOS REGISTRADOS</h3>
+      <div id="descansoList" style="display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto;padding-right:4px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FECHAS ESPECIALES ══ -->
+<section class="section" id="sec-fechas">
+  <div class="section-header">
+    <div><div class="section-title">Fechas <span>Especiales</span></div><div class="section-sub">Cumpleaños, aniversarios y eventos corporativos</div></div>
+    <button class="btn-add" id="btnAddFecha" onclick="openModal('modalFecha')"><i class="fa fa-plus"></i> Agregar Fecha</button>
+  </div>
+  <div class="search-bar"><i class="fa fa-search"></i><input type="text" placeholder="Buscar fechas especiales..." oninput="filterFechas(this.value)"></div>
+  <div class="grid-3" id="fechasGrid"></div>
+</section>
+
+<!-- ══ CONFIGURACIÓN ══ -->
+<section class="section" id="sec-configuracion">
+  <div class="section-header">
+    <div><div class="section-title">⚙️ <span>Configuración</span></div><div class="section-sub">Administración del portal QUICK</div></div>
+  </div>
+  <div class="grid-2" style="gap:24px;">
+    <div class="card">
+      <h3 style="font-family:var(--font-head);font-size:18px;letter-spacing:1px;margin-bottom:18px;color:var(--yellow);"><i class="fa fa-lock" style="margin-right:8px;"></i>CAMBIAR CONTRASEÑAS</h3>
+      <div class="cfg-block">
+        <div class="cfg-block-label">Administrador</div>
+        <div class="form-group" style="margin-bottom:10px;"><label>Nueva contraseña</label><input type="password" id="cfgPassAdmin" placeholder="Mínimo 4 caracteres"></div>
+        <div class="form-group" style="margin-bottom:10px;"><label>Confirmar</label><input type="password" id="cfgPassAdminC" placeholder="Repetir contraseña"></div>
+        <button class="btn-save" onclick="changePassword('admin')" style="width:100%;"><i class="fa fa-save" style="margin-right:6px;"></i>Actualizar Admin</button>
+      </div>
+      <div class="cfg-block">
+        <div class="cfg-block-label">Coordinador</div>
+        <div class="form-group" style="margin-bottom:10px;"><label>Nueva contraseña</label><input type="password" id="cfgPassCoord" placeholder="Mínimo 4 caracteres"></div>
+        <div class="form-group" style="margin-bottom:10px;"><label>Confirmar</label><input type="password" id="cfgPassCoordC" placeholder="Repetir contraseña"></div>
+        <button class="btn-save" onclick="changePassword('coord')" style="width:100%;"><i class="fa fa-save" style="margin-right:6px;"></i>Actualizar Coordinador</button>
+      </div>
+      <div class="cfg-block">
+        <div class="cfg-block-label">Visualizador</div>
+        <div class="form-group" style="margin-bottom:10px;"><label>Nueva contraseña</label><input type="password" id="cfgPassViewer" placeholder="Mínimo 4 caracteres"></div>
+        <div class="form-group" style="margin-bottom:10px;"><label>Confirmar</label><input type="password" id="cfgPassViewerC" placeholder="Repetir contraseña"></div>
+        <button class="btn-save" onclick="changePassword('viewer')" style="width:100%;"><i class="fa fa-save" style="margin-right:6px;"></i>Actualizar Visualizador</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="font-family:var(--font-head);font-size:18px;letter-spacing:1px;margin-bottom:18px;color:var(--yellow);"><i class="fa fa-bell" style="margin-right:8px;"></i>ALERTAS Y NOTIFICACIONES</h3>
+      <div class="cfg-block">
+        <div class="cfg-block-label">Destinatarios de alertas</div>
+        <div id="cfgEmailList" style="margin-bottom:10px;"></div>
+        <div style="display:flex;gap:8px;">
+          <input type="email" id="cfgNewEmail" placeholder="correo@quick.com" style="flex:1;background:var(--black);border:1.5px solid var(--grey2);border-radius:var(--radius-sm);padding:9px 14px;color:var(--white);font-family:var(--font);font-size:13px;outline:none;">
+          <button class="btn-save" onclick="addAlertEmail()" style="flex-shrink:0;"><i class="fa fa-plus"></i></button>
+        </div>
+      </div>
+      <div class="cfg-block">
+        <div class="cfg-block-label">Disparar alerta manual</div>
+        <div class="form-group" style="margin-bottom:10px;"><label>Tipo</label>
+          <select id="cfgAlertType" onchange="toggleCustomMsg(this.value)">
+            <option value="cumpleanos">🎂 Cumpleaños próximos (30 días)</option>
+            <option value="capacitacion">📚 Capacitaciones pendientes</option>
+            <option value="custom">✏️ Mensaje personalizado</option>
+          </select>
+        </div>
+        <div id="cfgCustomMsgGroup" style="display:none;" class="form-group"><label>Mensaje</label><textarea id="cfgCustomMsg" placeholder="Escribe el mensaje..." style="min-height:70px;"></textarea></div>
+        <button class="btn-save" onclick="sendAlert()" style="width:100%;"><i class="fa fa-paper-plane" style="margin-right:6px;"></i>Enviar Alerta</button>
+      </div>
+      <div class="cfg-block">
+        <div class="cfg-block-label">Próximas alertas (30 días)</div>
+        <div id="cfgUpcomingAlerts"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main><!-- /main -->
+
+</div><!-- /app -->
+
+<!-- ══════════════ MODALS ══════════════ -->
+
+<!-- Modal Link Admin -->
+<div class="modal-overlay" id="modalLinkAdmin">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">LINK ADMINISTRATIVO</div><button class="modal-close" onclick="closeModal('modalLinkAdmin')"><i class="fa fa-times"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="laId">
+      <div class="form-group"><label>Título del Link</label><input type="text" id="laTitle" placeholder="Ej: Sistema de Nómina"></div>
+      <div class="form-group"><label>URL</label><input type="text" id="laUrl" placeholder="https://..."></div>
+      <div class="form-group"><label>Categoría</label><input type="text" id="laCat" placeholder="Ej: Recursos Humanos"></div>
+      <div class="form-group"><label>Descripción</label><textarea id="laDesc" placeholder="Descripción breve del enlace..."></textarea></div>
+      <div class="form-group"><label>Ícono (FA class)</label><input type="text" id="laIcon" placeholder="Ej: fa-globe"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modalLinkAdmin')">Cancelar</button>
+      <button class="btn-save" onclick="saveLinkAdmin()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Link Gestión -->
+<div class="modal-overlay" id="modalLinkGestion">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">LINK DE GESTIÓN</div><button class="modal-close" onclick="closeModal('modalLinkGestion')"><i class="fa fa-times"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="lgId">
+      <div class="form-group"><label>Título</label><input type="text" id="lgTitle" placeholder="Ej: Solicitud de Cesantías"></div>
+      <div class="form-group"><label>URL</label><input type="text" id="lgUrl" placeholder="https://..."></div>
+      <div class="form-group"><label>Categoría</label><input type="text" id="lgCat" placeholder="Ej: Bienestar"></div>
+      <div class="form-group"><label>Descripción</label><textarea id="lgDesc" placeholder="Descripción del proceso..."></textarea></div>
+      <div class="form-group"><label>Ícono (FA class)</label><input type="text" id="lgIcon" placeholder="Ej: fa-file-alt"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modalLinkGestion')">Cancelar</button>
+      <button class="btn-save" onclick="saveLinkGestion()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal HSQ -->
+<div class="modal-overlay" id="modalHSQ">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">ELEMENTO HSQ</div><button class="modal-close" onclick="closeModal('modalHSQ')"><i class="fa fa-times"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="hsqId">
+      <div class="form-group"><label>Tipo</label>
+        <select id="hsqType">
+          <option value="capacitacion">Capacitación</option>
+          <option value="anuncio">Anuncio</option>
+          <option value="link">Link</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Título</label><input type="text" id="hsqTitle" placeholder="Título del elemento"></div>
+      <div class="form-group"><label>Descripción</label><textarea id="hsqDesc" placeholder="Descripción o contenido..."></textarea></div>
+      <div class="form-group"><label>Imagen / Portada (opcional)</label>
+        <img id="hsqCoverPreview" src="" style="width:100%;max-height:110px;object-fit:cover;border-radius:8px;border:1.5px solid var(--yellow);display:none;margin-bottom:8px;" alt="">
+        <label style="cursor:pointer;background:var(--black3);border:1.5px solid var(--grey2);border-radius:var(--radius-sm);padding:8px 14px;font-size:12px;display:flex;align-items:center;gap:7px;transition:.2s;width:100%;" onmouseover="this.style.borderColor='var(--yellow)'" onmouseout="this.style.borderColor='var(--grey2)'">
+          <i class="fa fa-image" style="color:var(--yellow);"></i>Subir imagen desde computador
+          <input type="file" accept="image/*" style="display:none;" onchange="previewPhoto(this,'hsqCoverPreview',null,'hsqCover')">
+        </label>
+        <input type="hidden" id="hsqCover">
+      </div>
+      <div class="form-group"><label>URL (opcional)</label><input type="text" id="hsqUrl" placeholder="https://..."></div>
+      <div class="form-group"><label>Fecha</label><input type="date" id="hsqDate"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modalHSQ')">Cancelar</button>
+      <button class="btn-save" onclick="saveHSQ()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Carpeta -->
+<div class="modal-overlay" id="modalFolder">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">NUEVA CARPETA</div><button class="modal-close" onclick="closeModal('modalFolder')"><i class="fa fa-times"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Nombre de la Carpeta</label><input type="text" id="folderName" placeholder="Ej: MATRIZ"></div>
+      <div class="form-group"><label>Carpeta Padre (opcional)</label>
+        <select id="folderParent"><option value="">— Raíz —</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modalFolder')">Cancelar</button>
+      <button class="btn-save" onclick="saveFolder()">Crear</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Subir Documento -->
+<div class="modal-overlay" id="modalUploadDoc">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">SUBIR DOCUMENTO</div><button class="modal-close" onclick="closeModal('modalUploadDoc')"><i class="fa fa-times"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Nombre del Documento</label><input type="text" id="docName" placeholder="Ej: Informe Enero 2024"></div>
+      <div class="form-group"><label>Carpeta</label><select id="docFolder"><option value="">Sin carpeta</option></select></div>
+      <div class="form-group"><label>Tipo</label>
+        <select id="docType">
+          <option value="pdf">PDF</option><option value="excel">Excel</option>
+          <option value="word">Word</option><option value="ppt">PowerPoint</option>
+          <option value="img">Imagen</option><option value="link">Link externo</option>
+        </select>
+      </div>
+      <div class="form-group"><label>URL / Enlace</label><input type="text" id="docUrl" placeholder="https://drive.google.com/..."></div>
+      <div class="form-group"><label>Descripción</label><textarea id="docDesc" placeholder="Descripción breve..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modalUploadDoc')">Cancelar</button>
+      <button class="btn-save" onclick="saveDocument()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Staff -->
+<div class="modal-overlay" id="modalStaff">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">COLABORADOR</div><button class="modal-close" onclick="closeModal('modalStaff')"><i class="fa fa-times"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="stId">
+      <div class="form-group"><label>Nombre Completo</label><input type="text" id="stName" placeholder="Ej: Ana García López"></div>
+      <div class="form-group"><label>Cargo</label><input type="text" id="stCargo" placeholder="Ej: Coordinador Operativo"></div>
+      <div class="form-group"><label>Operación</label><input type="text" id="stOp" placeholder="Ej: Bogotá Norte"></div>
+      <div class="form-group"><label>Correo Corporativo</label><input type="text" id="stEmail" placeholder="nombre@quick.com"></div>
+      <div class="form-group"><label>Celular Corporativo</label><input type="text" id="stCell" placeholder="+57 300 000 0000"></div>
+      <div class="form-group"><label>ID Computador</label><input type="text" id="stPC" placeholder="PC-001"></div>
+      <div class="form-group"><label>Línea Corporativa</label><input type="text" id="stLine" placeholder="Ext. 101"></div>
+      <div class="form-group"><label>Foto del Colaborador</label>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+          <img id="stPhotoPreview" src="" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid var(--yellow);display:none;" alt="">
+          <div id="stPhotoPlaceholder" style="width:56px;height:56px;border-radius:50%;background:var(--black3);border:2px dashed var(--grey2);display:flex;align-items:center;justify-content:center;color:var(--grey);font-size:22px;flex-shrink:0;"><i class="fa fa-user"></i></div>
+          <label style="cursor:pointer;background:var(--black3);border:1.5px solid var(--grey2);border-radius:var(--radius-sm);padding:8px 14px;font-size:12px;display:flex;align-items:center;gap:7px;transition:.2s;" onmouseover="this.style.borderColor='var(--yellow)'" onmouseout="this.style.borderColor='var(--grey2)'">
+            <i class="fa fa-upload" style="color:var(--yellow);"></i>Subir foto
+            <input type="file" accept="image/*" style="display:none;" onchange="previewPhoto(this,'stPhotoPreview','stPhotoPlaceholder','stPhoto')">
+          </label>
+        </div>
+        <input type="hidden" id="stPhoto">
+      </div>
+      <div class="form-group"><label>Imagen de Portada / Ilustración</label>
+        <img id="stCoverPreview" src="" style="width:100%;max-height:100px;object-fit:cover;border-radius:8px;border:1.5px solid var(--yellow);display:none;margin-bottom:8px;" alt="">
+        <label style="cursor:pointer;background:var(--black3);border:1.5px solid var(--grey2);border-radius:var(--radius-sm);padding:8px 14px;font-size:12px;display:flex;align-items:center;gap:7px;transition:.2s;" onmouseover="this.style.borderColor='var(--yellow)'" onmouseout="this.style.borderColor='var(--grey2)'">
+          <i class="fa fa-image" style="color:var(--yellow);"></i>Subir imagen de portada
+          <input type="file" accept="image/*" style="display:none;" onchange="previewPhoto(this,'stCoverPreview',null,'stCover')">
+        </label>
+        <input type="hidden" id="stCover">
+      </div>
+      <div class="form-group"><label>Info Adicional</label><textarea id="stExtra" placeholder="Observaciones... (puedes usar saltos de línea)"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modalStaff')">Cancelar</button>
+      <button class="btn-save" onclick="saveStaff()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Descanso -->
+<div class="modal-overlay" id="modalDescanso">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="modalDescansoTitle">PROGRAMAR TURNO</div><button class="modal-close" onclick="closeModal('modalDescanso')"><i class="fa fa-times"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="descId">
+      <div class="form-group"><label>Coordinador</label>
+        <select id="descPerson">
+          <option value="">— Seleccionar coordinador —</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Tipo de Turno</label>
+        <select id="descType">
+          <option value="rest">🌙 Descanso</option>
+          <option value="work8">💼 Trabajo Domingo 8 horas</option>
+          <option value="work16">💪 Trabajo Domingo 16 horas</option>
+          <option value="work">💼 Trabajo (otro)</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Fecha Inicio</label><input type="date" id="descStart"></div>
+      <div class="form-group"><label>Fecha Fin</label><input type="date" id="descEnd"></div>
+      <div class="form-group"><label>Descripción / Notas</label><textarea id="descNotes" placeholder="Ej: Turno de apertura, zona norte..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modalDescanso')">Cancelar</button>
+      <button class="btn-save" onclick="saveDescanso()"><i class="fa fa-save" style="margin-right:6px;"></i>Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Fecha Especial -->
+<div class="modal-overlay" id="modalFecha">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">FECHA ESPECIAL</div><button class="modal-close" onclick="closeModal('modalFecha')"><i class="fa fa-times"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="feId">
+      <div class="form-group"><label>Tipo</label>
+        <select id="feType">
+          <option value="cumpleanos">🎂 Cumpleaños</option>
+          <option value="aniversario">🎉 Aniversario</option>
+          <option value="evento">📅 Evento</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Nombre</label><input type="text" id="feName" placeholder="Ej: Carlos Martínez"></div>
+      <div class="form-group"><label>Fecha</label><input type="date" id="feDate"></div>
+      <div class="form-group"><label>Descripción</label><textarea id="feDesc" placeholder="Descripción o mensaje..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modalFecha')">Cancelar</button>
+      <button class="btn-save" onclick="saveFecha()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="modal-overlay" id="modalConfirm">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header"><div class="modal-title">CONFIRMAR</div><button class="modal-close" onclick="closeModal('modalConfirm')"><i class="fa fa-times"></i></button></div>
+    <div class="modal-body" style="text-align:center;padding:28px;">
+      <i class="fa fa-exclamation-triangle" style="font-size:40px;color:#ff4d4d;margin-bottom:16px;display:block;"></i>
+      <p style="font-size:14px;color:var(--white2);" id="confirmMsg">¿Estás seguro de que deseas eliminar este elemento?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modalConfirm')">Cancelar</button>
+      <button class="btn-save" style="background:#ff4d4d;" id="confirmBtn">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Detalle día calendario -->
+<div class="modal-overlay" id="modalCalDay">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header"><div class="modal-title">DETALLE DEL DÍA</div><button class="modal-close" onclick="closeModal('modalCalDay')"><i class="fa fa-times"></i></button></div>
+    <div class="modal-body" id="calDayContent" style="padding-top:8px;"></div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('modalCalDay')">Cerrar</button></div>
+  </div>
+</div>
+
+<!-- Modal: Editor de artículo reglamento -->
+<div class="modal-overlay" id="modalRegEdit">
+  <div class="modal" style="max-width:660px;">
+    <div class="modal-header"><div class="modal-title">EDITAR ARTÍCULO</div><button class="modal-close" onclick="closeModal('modalRegEdit')"><i class="fa fa-times"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="regEditId">
+      <div class="form-group"><label>Título</label><input type="text" id="regEditTitle" placeholder="Artículo X – Título"></div>
+      <div class="form-group"><label>Contenido (los saltos de línea se respetan)</label><textarea id="regEditContent" style="min-height:260px;" placeholder="Escribe el contenido..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modalRegEdit')">Cancelar</button>
+      <button class="btn-save" onclick="saveRegEdit()"><i class="fa fa-save" style="margin-right:6px;"></i>Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: IA Reglamento -->
+<div class="modal-overlay" id="modalRegIA">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#7c4dff,#5533bb);display:flex;align-items:center;justify-content:center;font-size:16px;">🤖</div>
+        <div class="modal-title">ASISTENTE DE REGLAMENTO</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modalRegIA')"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body" style="padding-bottom:0;">
+      <div id="iaMessages" style="max-height:320px;overflow-y:auto;margin-bottom:12px;padding-right:4px;display:flex;flex-direction:column;gap:0;"></div>
+      <div style="display:flex;gap:8px;padding-bottom:4px;">
+        <input type="text" id="iaInput" placeholder="Ej: ¿Qué pasa si un mensajero no se presenta?" style="flex:1;background:var(--black3);border:1.5px solid var(--grey2);border-radius:var(--radius-sm);padding:10px 14px;color:var(--white);font-family:var(--font);font-size:13px;outline:none;" onkeydown="if(event.key==='Enter')askIA()">
+        <button class="btn-save" onclick="askIA()" id="iaSendBtn" style="flex-shrink:0;padding:10px 16px;"><i class="fa fa-paper-plane"></i></button>
+      </div>
+    </div>
+    <div class="modal-footer" style="padding-top:10px;">
+      <span style="font-size:11px;color:var(--grey);"><i class="fa fa-info-circle" style="margin-right:4px;"></i>Consulta el Reglamento Interno de QUICK</span>
+      <button class="btn-cancel" onclick="closeModal('modalRegIA')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Editar link HSQ fijo -->
+<div class="modal-overlay" id="modalHsqLink">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header"><div class="modal-title">EDITAR LINK HSQ</div><button class="modal-close" onclick="closeModal('modalHsqLink')"><i class="fa fa-times"></i></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="hsqLinkKey">
+      <div class="form-group"><label>Nombre</label><input type="text" id="hsqLinkTitle" placeholder="Ej: Preoperacional"></div>
+      <div class="form-group"><label>URL del formulario</label><input type="text" id="hsqLinkUrl" placeholder="https://forms.gle/..."></div>
+      <div class="form-group"><label>Descripción</label><input type="text" id="hsqLinkDesc" placeholder="Descripción breve..."></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modalHsqLink')">Cancelar</button>
+      <button class="btn-save" onclick="saveHsqFixed()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Detalle fecha especial -->
+<div class="modal-overlay" id="modalFechaDetail">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header"><div class="modal-title" id="fechaDetailTitle">DETALLE</div><button class="modal-close" onclick="closeModal('modalFechaDetail')"><i class="fa fa-times"></i></button></div>
+    <div class="modal-body" id="fechaDetailContent"></div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('modalFechaDetail')">Cerrar</button></div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ══════════════ JAVASCRIPT ══════════════ -->
+<script>
+// ═══════════ STATE ═══════════
+const USERS={
+  admin:{
+    pass:'1003706159',
+    role:'admin',
+    name:'Administrador'
+  },
+
+  coord:{
+    pass:'quick123',
+    role:'coordinador',
+    name:'Coordinador'
+  },
+
+  viewer:{
+    pass:'quick123',
+    role:'visualizador',
+    name:'Visualizador'
+  }
+};
+let currentUser=null;
+let sidebarCollapsed=false;
+let currentWeekOffset=0;
+let darkMode=true;
+const SESSION_TIME = 15 * 60 * 1000; // 15 minutos
+
+// ═══════════ DATA (LocalStorage) ═══════════
+function load(key,def){
+  try{const d=localStorage.getItem('quick_'+key);return d?JSON.parse(d):def;}catch{return def;}
+}
+function save(key,val){localStorage.setItem('quick_'+key,JSON.stringify(val));}
+
+let linksAdmin=load('linksAdmin',[
+  {id:1,title:'Sistema de Nómina',url:'#',cat:'Recursos Humanos',desc:'Gestión de nómina y pagos corporativos',icon:'fa-money-check-alt'},
+  {id:2,title:'Portal HR',url:'#',cat:'Recursos Humanos',desc:'Administración de personal y contratos',icon:'fa-user-tie'},
+  {id:3,title:'Contabilidad',url:'#',cat:'Finanzas',desc:'Sistema contable y reportes financieros',icon:'fa-calculator'},
+  {id:4,title:'CRM Clientes',url:'#',cat:'Ventas',desc:'Gestión de clientes y oportunidades',icon:'fa-handshake'},
+  {id:5,title:'BI Dashboard',url:'#',cat:'Analítica',desc:'Business Intelligence y métricas de operación',icon:'fa-chart-bar'},
+  {id:6,title:'Correo Corporativo',url:'#',cat:'Comunicación',desc:'Acceso al correo institucional',icon:'fa-envelope'},
+]);
+let linksGestion=load('linksGestion',[
+  {id:1,title:'Solicitud de Cesantías',url:'#',cat:'Bienestar',desc:'Formulario para solicitar cesantías parciales o totales',icon:'fa-file-invoice-dollar'},
+  {id:2,title:'Certificado Laboral',url:'#',cat:'Certificados',desc:'Generación de certificados laborales',icon:'fa-certificate'},
+  {id:3,title:'Incapacidades',url:'#',cat:'Salud',desc:'Registro y seguimiento de incapacidades médicas',icon:'fa-notes-medical'},
+  {id:4,title:'Formularios Internos',url:'#',cat:'Administración',desc:'Acceso a formularios de procesos internos',icon:'fa-file-alt'},
+  {id:5,title:'Solicitud Vacaciones',url:'#',cat:'Bienestar',desc:'Gestión y aprobación de vacaciones',icon:'fa-umbrella-beach'},
+  {id:6,title:'Permisos Especiales',url:'#',cat:'RRHH',desc:'Solicitud de permisos especiales remunerados',icon:'fa-calendar-check'},
+]);
+let hsqItems=load('hsqItems',[
+  {id:1,type:'capacitacion',title:'Manejo Defensivo en Moto',desc:'Capacitación obligatoria para mensajeros. Incluye técnicas de frenado y esquive.',url:'#',date:'2024-03-15'},
+  {id:2,type:'anuncio',title:'Uso Obligatorio de EPP',desc:'Recordatorio: todos los mensajeros deben portar casco, chaleco y guantes en todo momento.',url:'',date:'2024-03-10'},
+  {id:3,type:'capacitacion',title:'Primeros Auxilios',desc:'Taller práctico de primeros auxilios para coordinadores operativos.',url:'#',date:'2024-03-20'},
+]);
+let folders=load('folders',[
+  {id:1,name:'MATRIZ',parentId:null},{id:2,name:'Enero',parentId:1},
+  {id:3,name:'Febrero',parentId:1},{id:4,name:'Marzo',parentId:1},
+  {id:5,name:'CONTRATOS',parentId:null},{id:6,name:'INFORMES',parentId:null},
+]);
+let documents=load('documents',[
+  {id:1,name:'Informe Operativo Enero',folderId:2,type:'pdf',url:'#',desc:'Resumen operativo del mes de enero'},
+  {id:2,name:'Presupuesto Q1',folderId:1,type:'excel',url:'#',desc:'Presupuesto primer trimestre'},
+  {id:3,name:'Presentación Resultados',folderId:6,type:'ppt',url:'#',desc:'Resultados anuales para junta directiva'},
+]);
+let staff=load('staff',[
+  {id:1,name:'Carlos Rodríguez',cargo:'Coordinador Senior',op:'Bogotá Norte',email:'carlos.r@quick.com',cell:'+57 310 000 0001',pc:'PC-001',line:'Ext. 101',photo:'',extra:''},
+  {id:2,name:'Ana García',cargo:'Coordinadora Operativa',op:'Bogotá Sur',email:'ana.g@quick.com',cell:'+57 310 000 0002',pc:'PC-002',line:'Ext. 102',photo:'',extra:''},
+  {id:3,name:'Luis Martínez',cargo:'Analista HSQ',op:'Central',email:'luis.m@quick.com',cell:'+57 310 000 0003',pc:'PC-003',line:'Ext. 103',photo:'',extra:''},
+]);
+let descansos=load('descansos',[]);
+let fechas=load('fechas',[
+  {id:1,type:'cumpleanos',name:'Carlos Rodríguez',date:'1990-03-22',desc:''},
+  {id:2,type:'cumpleanos',name:'Ana García',date:'1995-05-16',desc:''},
+  {id:3,type:'aniversario',name:'Fundación QUICK',date:'2018-01-10',desc:'Aniversario de la empresa'},
+  {id:4,type:'cumpleanos',name:'Luis Martínez',date:'1988-06-30',desc:''},
+]);
+
+/// ═══════════ LOGIN ═══════════ ///
+
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const r=document.getElementById('loginRole').value;
+  const err=document.getElementById('loginError');
+
+  if(USERS[u] && USERS[u].pass===p){
+
+    currentUser={
+      user:u,
+      role:USERS[u].role,
+      name:USERS[u].name
+    };
+
+    // GUARDAR SESIÓN
+    localStorage.setItem('quickUser',JSON.stringify(currentUser));
+    localStorage.setItem('quickLoginTime',Date.now());
+
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').classList.add('active');
+
+    initApp();
+
+  }else{
+
+    err.style.display='block';
+
+    setTimeout(()=>{
+      err.style.display='none';
+    },3000);
+
+  }
+
+}
+
+// LOGOUT
+function doLogout(){
+
+  currentUser=null;
+
+  // BORRAR SESIÓN
+  localStorage.removeItem('quickUser');
+  localStorage.removeItem('quickLoginTime');
+
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('loginScreen').style.display='flex';
+
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+
+}
+
+// VALIDAR SESIÓN AL RECARGAR
+window.addEventListener('load',()=>{
+
+  const savedUser=localStorage.getItem('quickUser');
+  const loginTime=localStorage.getItem('quickLoginTime');
+
+  if(savedUser && loginTime){
+
+    const now=Date.now();
+
+    // VALIDAR TIEMPO
+    if(now - parseInt(loginTime) < SESSION_TIME){
+
+      currentUser=JSON.parse(savedUser);
+
+      document.getElementById('loginScreen').style.display='none';
+      document.getElementById('app').classList.add('active');
+
+      initApp();
+
+    }else{
+
+      // SESIÓN EXPIRADA
+      localStorage.removeItem('quickUser');
+      localStorage.removeItem('quickLoginTime');
+
+    }
+
+  }
+
+});
+// ═══════════ INIT APP ═══════════
+function initApp(){
+  const isAdmin=currentUser.role==='admin';
+  document.getElementById('greetName').textContent=currentUser.name;
+  document.getElementById('userNameSide').textContent=currentUser.name;
+  document.getElementById('userRoleSide').textContent=currentUser.role.charAt(0).toUpperCase()+currentUser.role.slice(1);
+  const av=currentUser.name.charAt(0).toUpperCase();
+  document.getElementById('userAvatarSide').textContent=av;
+  document.getElementById('userAvatarTop').textContent=av;
+  // Disable admin buttons for non-admin
+  ['btnAddLinkAdmin','btnAddLinkGestion','btnAddHSQ','btnAddFolder','btnUploadDoc','btnAddStaff','btnAddDescanso','btnAddFecha'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.disabled=!isAdmin;
+  });
+  updateDate();
+  renderCalendar();
+  renderAllSections();
+  updateStats();
+  updateBdayBadge();
+  renderUpcomingBdays();
+  loadReglamento();
+  renderDescansoSchedule();
+}
+
+function updateDate(){
+  const d=new Date();
+  const opts={weekday:'long',year:'numeric',month:'long',day:'numeric'};
+  document.getElementById('greetDate').textContent=d.toLocaleDateString('es-CO',opts);
+}
+
+function updateStats(){
+
+  const statLinks=document.getElementById('statLinks');
+  const statStaff=document.getElementById('statStaff');
+  const statDocs=document.getElementById('statDocs');
+  const statBday=document.getElementById('statBday');
+
+  if(statLinks){
+    statLinks.textContent=linksAdmin.length+linksGestion.length;
+  }
+
+  if(statStaff){
+    statStaff.textContent=staff.length;
+  }
+
+  if(statDocs){
+    statDocs.textContent=documents.length;
+  }
+
+  const now=new Date();
+
+  const bdays=fechas.filter(f=>{
+
+    if(f.type!=='cumpleanos') return false;
+
+    const fd=new Date(f.date+'T00:00:00');
+
+    return fd.getMonth()===now.getMonth();
+
+  }).length;
+
+  if(statBday){
+    statBday.textContent=bdays;
+  }
+
+}
+// ═══════════ NAVIGATION ═══════════
+const sectionTitles={
+  'dashboard':'DASHBOARD','links-admin':'LINKS ADMINISTRATIVOS','links-gestion':'LINKS DE GESTIÓN',
+  'hsq':'HSQ','documentos':'DOCUMENTOS','reglamento':'REGLAMENTO INTERNO',
+  'area-admin':'ÁREA ADMINISTRATIVA','descansos':'DESCANSOS','fechas':'FECHAS ESPECIALES','configuracion':'CONFIGURACIÓN'
+};
+function goTo(section){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const sec=document.getElementById('sec-'+section);
+  if(sec)sec.classList.add('active');
+  const navItems=document.querySelectorAll('.nav-item');
+  navItems.forEach(n=>{if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+section+"'"))n.classList.add('active');});
+  document.getElementById('topbarTitle').textContent=sectionTitles[section]||section.toUpperCase();
+  // Close mobile sidebar
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  window.scrollTo(0,0);
+}
+
+// ═══════════ SIDEBAR ═══════════
+function toggleSidebar(){
+  sidebarCollapsed=!sidebarCollapsed;
+  const sb=document.getElementById('sidebar');
+  const tb=document.getElementById('topbar');
+  const mn=document.getElementById('main');
+  sb.classList.toggle('collapsed',sidebarCollapsed);
+  tb.classList.toggle('expanded',sidebarCollapsed);
+  mn.classList.toggle('expanded',sidebarCollapsed);
+}
+function toggleMobileSidebar(){
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+}
+
+// ═══════════ THEME ═══════════
+function toggleTheme(){
+  darkMode=!darkMode;
+  document.body.classList.toggle('light-mode',!darkMode);
+  document.getElementById('themeToggleBtn').querySelector('i').className=darkMode?'fa fa-moon':'fa fa-sun';
+}
+
+// ═══════════ TOAST ═══════════
+function toast(msg,type='success'){
+  const tc=document.getElementById('toastContainer');
+  const t=document.createElement('div');
+  t.className='toast '+type;
+  t.innerHTML=`<i class="fa fa-${type==='success'?'check-circle':'exclamation-circle'}"></i><span>${msg}</span>`;
+  tc.appendChild(t);
+  setTimeout(()=>{t.style.animation='toastIn .3s ease reverse';setTimeout(()=>t.remove(),300);},3000);
+}
+
+// ═══════════ MODALS ═══════════
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});
+});
+function confirmDelete(msg,cb){
+  document.getElementById('confirmMsg').textContent=msg;
+  const btn=document.getElementById('confirmBtn');
+  const newBtn=btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn,btn);
+  newBtn.addEventListener('click',()=>{cb();closeModal('modalConfirm');});
+  openModal('modalConfirm');
+}
+
+// ═══════════ LINKS ADMIN ═══════════
+function renderLinksAdmin(data){
+  data=data||linksAdmin;
+  const grid=document.getElementById('linksAdminGrid');
+  grid.innerHTML='';
+  if(!data.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1;"><i class="fa fa-link"></i><p>Sin links administrativos. Agrega el primero.</p></div>';return;}
+  data.forEach(l=>{
+    const div=document.createElement('div');
+    div.className='link-card';
+    div.innerHTML=`
+      <div class="link-icon"><i class="fa ${l.icon||'fa-link'}"></i></div>
+      <div class="link-info">
+        <div class="link-title">${l.title}</div>
+        <div class="link-desc">${l.desc||''}</div>
+        <div class="link-category">${l.cat||''}</div>
+        <div class="link-actions">
+          <button class="btn-open" onclick="openLink('${l.url}')"><i class="fa fa-external-link-alt"></i> Abrir</button>
+          ${currentUser&&currentUser.role==='admin'?`<button class="btn-icon" onclick="editLinkAdmin(${l.id})" title="Editar"><i class="fa fa-pen"></i></button><button class="btn-icon danger" onclick="deleteLinkAdmin(${l.id})" title="Eliminar"><i class="fa fa-trash"></i></button>`:''}
+        </div>
+      </div>`;
+    grid.appendChild(div);
+  });
+  renderFilters('filtersLinkAdmin',linksAdmin,'cat',v=>renderLinksAdmin(v?linksAdmin.filter(l=>l.cat===v):linksAdmin));
+}
+function openLink(url){if(url&&url!=='#')window.open(url,'_blank');else toast('No hay URL configurada','error');}
+function filterLinks(section,val){
+  const data=section==='links-admin'?linksAdmin:linksGestion;
+  const fn=section==='links-admin'?renderLinksAdmin:renderLinksGestion;
+  const f=data.filter(l=>l.title.toLowerCase().includes(val.toLowerCase())||l.desc.toLowerCase().includes(val.toLowerCase())||(l.cat||'').toLowerCase().includes(val.toLowerCase()));
+  fn(f);
+}
+function saveLinkAdmin(){
+  const id=document.getElementById('laId').value;
+  const obj={
+    id:id?parseInt(id):Date.now(),
+    title:document.getElementById('laTitle').value,
+    url:document.getElementById('laUrl').value,
+    cat:document.getElementById('laCat').value,
+    desc:document.getElementById('laDesc').value,
+    icon:document.getElementById('laIcon').value||'fa-link'
+  };
+  if(id)linksAdmin=linksAdmin.map(l=>l.id===obj.id?obj:l);
+  else linksAdmin.push(obj);
+  save('linksAdmin',linksAdmin);
+  renderLinksAdmin();updateStats();
+  closeModal('modalLinkAdmin');
+  resetModal(['laId','laTitle','laUrl','laCat','laDesc','laIcon']);
+  toast(id?'Link actualizado':'Link agregado exitosamente');
+}
+function editLinkAdmin(id){
+  const l=linksAdmin.find(x=>x.id===id);if(!l)return;
+  document.getElementById('laId').value=l.id;
+  document.getElementById('laTitle').value=l.title;
+  document.getElementById('laUrl').value=l.url;
+  document.getElementById('laCat').value=l.cat||'';
+  document.getElementById('laDesc').value=l.desc||'';
+  document.getElementById('laIcon').value=l.icon||'';
+  openModal('modalLinkAdmin');
+}
+function deleteLinkAdmin(id){
+  confirmDelete('¿Eliminar este link administrativo?',()=>{
+    linksAdmin=linksAdmin.filter(l=>l.id!==id);
+    save('linksAdmin',linksAdmin);renderLinksAdmin();updateStats();toast('Link eliminado');
+  });
+}
+
+// ═══════════ LINKS GESTIÓN ═══════════
+function renderLinksGestion(data){
+  data=data||linksGestion;
+  const grid=document.getElementById('linksGestionGrid');
+  grid.innerHTML='';
+  if(!data.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1;"><i class="fa fa-tasks"></i><p>Sin links de gestión registrados.</p></div>';return;}
+  data.forEach(l=>{
+    const div=document.createElement('div');div.className='link-card';
+    div.innerHTML=`
+      <div class="link-icon"><i class="fa ${l.icon||'fa-file-alt'}"></i></div>
+      <div class="link-info">
+        <div class="link-title">${l.title}</div>
+        <div class="link-desc">${l.desc||''}</div>
+        <div class="link-category">${l.cat||''}</div>
+        <div class="link-actions">
+          <button class="btn-open" onclick="openLink('${l.url}')"><i class="fa fa-external-link-alt"></i> Abrir</button>
+          ${currentUser&&currentUser.role==='admin'?`<button class="btn-icon" onclick="editLinkGestion(${l.id})"><i class="fa fa-pen"></i></button><button class="btn-icon danger" onclick="deleteLinkGestion(${l.id})"><i class="fa fa-trash"></i></button>`:''}
+        </div>
+      </div>`;
+    grid.appendChild(div);
+  });
+  renderFilters('filtersLinkGestion',linksGestion,'cat',v=>renderLinksGestion(v?linksGestion.filter(l=>l.cat===v):linksGestion));
+}
+function saveLinkGestion(){
+  const id=document.getElementById('lgId').value;
+  const obj={id:id?parseInt(id):Date.now(),title:document.getElementById('lgTitle').value,url:document.getElementById('lgUrl').value,cat:document.getElementById('lgCat').value,desc:document.getElementById('lgDesc').value,icon:document.getElementById('lgIcon').value||'fa-file-alt'};
+  if(id)linksGestion=linksGestion.map(l=>l.id===obj.id?obj:l);else linksGestion.push(obj);
+  save('linksGestion',linksGestion);renderLinksGestion();updateStats();closeModal('modalLinkGestion');resetModal(['lgId','lgTitle','lgUrl','lgCat','lgDesc','lgIcon']);toast(id?'Link actualizado':'Link agregado');
+}
+function editLinkGestion(id){
+  const l=linksGestion.find(x=>x.id===id);if(!l)return;
+  document.getElementById('lgId').value=l.id;document.getElementById('lgTitle').value=l.title;
+  document.getElementById('lgUrl').value=l.url;document.getElementById('lgCat').value=l.cat||'';
+  document.getElementById('lgDesc').value=l.desc||'';document.getElementById('lgIcon').value=l.icon||'';
+  openModal('modalLinkGestion');
+}
+function deleteLinkGestion(id){confirmDelete('¿Eliminar este link de gestión?',()=>{linksGestion=linksGestion.filter(l=>l.id!==id);save('linksGestion',linksGestion);renderLinksGestion();updateStats();toast('Link eliminado');});}
+
+// ═══════════ HSQ ═══════════
+function renderHSQ(data){
+  data=data||hsqItems;
+  var grid=document.getElementById('hsqGrid');
+  grid.innerHTML='';
+  if(!data.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1;"><i class="fa fa-shield-alt"></i><p>Sin elementos HSQ registrados.</p></div>';return;}
+  var icons={capacitacion:'fa-graduation-cap',anuncio:'fa-bullhorn',link:'fa-external-link-alt'};
+  var labels={capacitacion:'Capacitación',anuncio:'Anuncio',link:'Link'};
+  var typeColors={capacitacion:'#7c4dff',anuncio:'var(--yellow)',link:'#00c9a7'};
+  data.forEach(function(h){
+    var div=document.createElement('div');
+    div.className='link-card';
+    div.style.cssText='flex-direction:column;padding:0;overflow:hidden;';
+    var coverHtml='';
+    if(h.cover){
+      coverHtml='<div style="width:100%;height:100px;overflow:hidden;flex-shrink:0;"><img src="'+h.cover+'" style="width:100%;height:100%;object-fit:cover;"></div>';
+    }
+    var c=typeColors[h.type]||'var(--yellow)';
+    div.innerHTML=coverHtml+
+      '<div style="padding:16px;flex:1;display:flex;flex-direction:column;gap:6px;">'+
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">'+
+      '<div style="display:flex;align-items:center;gap:8px;">'+
+      '<div class="link-icon" style="width:36px;height:36px;border-radius:8px;background:'+c+'22;flex-shrink:0;display:flex;align-items:center;justify-content:center;"><i class="fa '+(icons[h.type]||'fa-shield-alt')+'" style="color:'+c+';font-size:16px;"></i></div>'+
+      '<div class="link-title" style="font-size:14px;">'+h.title+'</div></div>'+
+      (currentUser&&currentUser.role==='admin'?'<div style="display:flex;gap:4px;flex-shrink:0;"><button class="btn-icon" onclick="editHSQ('+h.id+')" title="Editar"><i class="fa fa-pen"></i></button><button class="btn-icon danger" onclick="deleteHSQ('+h.id+')" title="Eliminar"><i class="fa fa-trash"></i></button></div>':'')+
+      '</div>'+
+      '<div class="link-desc" style="font-size:12px;color:var(--grey);line-height:1.5;white-space:pre-wrap;">'+(h.desc||'')+'</div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;">'+
+      '<span class="link-category" style="font-size:10px;color:'+c+';">'+(labels[h.type]||h.type)+(h.date?' · '+h.date:'')+'</span>'+
+      (h.url?'<button class="btn-open" onclick="openLink(''+h.url+'')"><i class="fa fa-external-link-alt"></i> Abrir</button>':'')+
+      '</div>'+
+      '</div>';
+    grid.appendChild(div);
+  });
+}
+function filterHSQ(val){renderHSQ(hsqItems.filter(function(h){return h.title.toLowerCase().includes(val.toLowerCase())||(h.desc||'').toLowerCase().includes(val.toLowerCase());}));}
+function saveHSQ(){
+  var id=document.getElementById('hsqId').value;
+  var obj={
+    id:id?parseInt(id):Date.now(),
+    type:document.getElementById('hsqType').value,
+    title:document.getElementById('hsqTitle').value,
+    desc:document.getElementById('hsqDesc').value,
+    cover:document.getElementById('hsqCover').value||'',
+    url:document.getElementById('hsqUrl').value,
+    date:document.getElementById('hsqDate').value
+  };
+  if(id)hsqItems=hsqItems.map(function(h){return h.id===obj.id?obj:h;});else hsqItems.push(obj);
+  save('hsqItems',hsqItems);renderHSQ();closeModal('modalHSQ');
+  resetModal(['hsqId','hsqTitle','hsqDesc','hsqUrl','hsqDate','hsqCover']);
+  var cp=document.getElementById('hsqCoverPreview');if(cp){cp.src='';cp.style.display='none';}
+  toast(id?'Elemento actualizado':'Elemento HSQ agregado');
+}
+function editHSQ(id){
+  var h=hsqItems.find(function(x){return x.id===id;});if(!h)return;
+  document.getElementById('hsqId').value=h.id;
+  document.getElementById('hsqType').value=h.type;
+  document.getElementById('hsqTitle').value=h.title;
+  document.getElementById('hsqDesc').value=h.desc||'';
+  document.getElementById('hsqCover').value=h.cover||'';
+  document.getElementById('hsqUrl').value=h.url||'';
+  document.getElementById('hsqDate').value=h.date||'';
+  var cp=document.getElementById('hsqCoverPreview');
+  if(cp){if(h.cover){cp.src=h.cover;cp.style.display='block';}else{cp.style.display='none';}}
+  openModal('modalHSQ');
+}
+function deleteHSQ(id){confirmDelete('¿Eliminar este elemento HSQ?',function(){hsqItems=hsqItems.filter(function(h){return h.id!==id;});save('hsqItems',hsqItems);renderHSQ();toast('Elemento eliminado');});}
+
+// ═══════════ DOCUMENTOS ═══════════
+function populateFolderSelects(){
+  ['folderParent','docFolder'].forEach(sid=>{
+    const sel=document.getElementById(sid);
+    const cur=sel.value;
+    sel.innerHTML=sid==='folderParent'?'<option value="">— Raíz —</option>':'<option value="">Sin carpeta</option>';
+    folders.filter(f=>!f.parentId||(sid==='folderParent'&&true)).forEach(f=>{
+      sel.innerHTML+=`<option value="${f.id}">${f.name}</option>`;
+    });
+    sel.value=cur;
+  });
+}
+function renderFolderTree(){
+  const tree=document.getElementById('folderTree');
+  tree.innerHTML='';
+  const roots=folders.filter(f=>!f.parentId);
+  roots.forEach(f=>tree.appendChild(buildFolderNode(f)));
+}
+function buildFolderNode(folder){
+  const children=folders.filter(f=>f.parentId===folder.id);
+  const div=document.createElement('div');
+  const header=document.createElement('div');
+  header.className='folder-item';
+  header.innerHTML=`<i class="fa fa-folder"></i><span>${folder.name}</span><span class="meta">${documents.filter(d=>d.folderId===folder.id).length} archivos</span>`;
+  if(currentUser&&currentUser.role==='admin'){
+    header.innerHTML+=`<button class="btn-icon danger" onclick="deleteFolder(${folder.id});event.stopPropagation();" style="margin-left:4px;" title="Eliminar"><i class="fa fa-trash" style="font-size:10px;"></i></button>`;
+  }
+  header.onclick=()=>{
+    const ch=div.querySelector('.folder-children');
+    if(ch){ch.classList.toggle('open');header.querySelector('.fa-folder').className=ch.classList.contains('open')?'fa fa-folder-open':'fa fa-folder';}
+    renderDocsForFolder(folder.id);
+  };
+  div.appendChild(header);
+  if(children.length){
+    const chDiv=document.createElement('div');chDiv.className='folder-children';
+    children.forEach(c=>chDiv.appendChild(buildFolderNode(c)));
+    div.appendChild(chDiv);
+  }
+  return div;
+}
+function renderDocsForFolder(folderId){
+  const docs=documents.filter(d=>d.folderId===folderId);
+  renderDocs(docs);
+}
+function renderDocs(data){
+  const grid=document.getElementById('docsGrid');
+  data=data||documents;grid.innerHTML='';
+  if(!data.length){grid.innerHTML='<div class="empty-state"><i class="fa fa-file"></i><p>Sin documentos en esta carpeta.</p></div>';return;}
+  const typeIcon={pdf:'fa-file-pdf',excel:'fa-file-excel',word:'fa-file-word',ppt:'fa-file-powerpoint',img:'fa-file-image',link:'fa-link'};
+  const typeColor={pdf:'#ff4d4d',excel:'#22dd54',word:'#4d9fff',ppt:'#ff8c4d',img:'#c44dff',link:'var(--yellow)'};
+  data.forEach(d=>{
+    const div=document.createElement('div');div.className='link-card';div.style.marginBottom='12px';
+    div.innerHTML=`
+      <div class="link-icon" style="background:${typeColor[d.type]||'var(--yellow)'}22;"><i class="fa ${typeIcon[d.type]||'fa-file'}" style="color:${typeColor[d.type]||'var(--yellow)'};"></i></div>
+      <div class="link-info">
+        <div class="link-title">${d.name}</div>
+        <div class="link-desc">${d.desc||''}</div>
+        <div class="link-category">${d.type?.toUpperCase()||''}</div>
+        <div class="link-actions">
+          <button class="btn-open" onclick="openLink('${d.url}')"><i class="fa fa-eye"></i> Ver</button>
+          ${currentUser&&currentUser.role==='admin'?`<button class="btn-icon danger" onclick="deleteDocument(${d.id})"><i class="fa fa-trash"></i></button>`:''}
+        </div>
+      </div>`;
+    grid.appendChild(div);
+  });
+}
+function filterDocs(val){renderDocs(documents.filter(d=>d.name.toLowerCase().includes(val.toLowerCase())||(d.desc||'').toLowerCase().includes(val.toLowerCase())));}
+function saveFolder(){
+  const name=document.getElementById('folderName').value.trim();
+  if(!name){toast('Ingresa el nombre de la carpeta','error');return;}
+  const parentId=document.getElementById('folderParent').value||null;
+  folders.push({id:Date.now(),name,parentId:parentId?parseInt(parentId):null});
+  save('folders',folders);
+  renderFolderTree();populateFolderSelects();closeModal('modalFolder');
+  document.getElementById('folderName').value='';toast('Carpeta creada');
+}
+function deleteFolder(id){
+  confirmDelete('¿Eliminar esta carpeta y sus subcarpetas?',()=>{
+    const toDelete=[id];
+    function collectChildren(pid){folders.filter(f=>f.parentId===pid).forEach(f=>{toDelete.push(f.id);collectChildren(f.id);});}
+    collectChildren(id);
+    folders=folders.filter(f=>!toDelete.includes(f.id));
+    documents=documents.filter(d=>!toDelete.includes(d.folderId));
+    save('folders',folders);save('documents',documents);
+    renderFolderTree();renderDocs();populateFolderSelects();updateStats();toast('Carpeta eliminada');
+  });
+}
+function saveDocument(){
+  const obj={id:Date.now(),name:document.getElementById('docName').value,folderId:document.getElementById('docFolder').value?parseInt(document.getElementById('docFolder').value):null,type:document.getElementById('docType').value,url:document.getElementById('docUrl').value,desc:document.getElementById('docDesc').value};
+  documents.push(obj);save('documents',documents);renderFolderTree();renderDocs();updateStats();closeModal('modalUploadDoc');
+  resetModal(['docName','docUrl','docDesc']);toast('Documento guardado');
+}
+function deleteDocument(id){confirmDelete('¿Eliminar este documento?',()=>{documents=documents.filter(d=>d.id!==id);save('documents',documents);renderDocs();updateStats();toast('Documento eliminado');});}
+
+// ═══════════ REGLAMENTO ═══════════
+const reglamentoData=[
+  {id:'r1',title:'Artículo 1 – Objeto y Ámbito',content:`El presente Reglamento Interno de Trabajo, elaborado por QUICK, tiene por objeto establecer las normas y disposiciones que regulan las relaciones laborales entre la empresa y sus trabajadores, en cumplimiento de lo dispuesto en el Código Sustantivo del Trabajo de Colombia y demás normas concordantes.\n\nEste reglamento es de obligatorio cumplimiento para todos los trabajadores de QUICK, independientemente de su cargo, tipo de contrato o modalidad de vinculación laboral.`},
+  {id:'r2',title:'Artículo 2 – Condiciones de Admisión',content:`Para ser admitido como trabajador de QUICK, el aspirante deberá cumplir los siguientes requisitos:\n\n1. Ser mayor de edad (18 años cumplidos).\n2. Presentar hoja de vida actualizada con soporte de experiencia laboral.\n3. Aportar fotocopia de la cédula de ciudadanía.\n4. Certificado de antecedentes judiciales vigente.\n5. Exámenes médicos de ingreso aprobados.\n6. Referencias personales y laborales verificables.\n7. No tener contratos vigentes con la competencia directa.\n8. Suscribir el contrato de trabajo en las condiciones acordadas.\n\nLa empresa se reserva el derecho de verificar toda la información suministrada por el aspirante.`},
+  {id:'r3',title:'Artículo 3 – Horarios y Jornada',content:`La jornada ordinaria de trabajo en QUICK es de ocho (8) horas diarias y cuarenta y ocho (48) horas semanales, distribuidas de lunes a sábado.\n\nHorarios generales:\n• Jornada diurna: 7:00 a.m. – 5:00 p.m.\n• Jornada mixta: 12:00 p.m. – 8:00 p.m.\n• Operaciones especiales: según necesidad operativa.\n\nCualquier tiempo trabajado fuera de la jornada ordinaria deberá ser autorizado previamente por el coordinador y se reconocerá como horas extras conforme a la ley.`},
+  {id:'r4',title:'Artículo 4 – Descansos y Vacaciones',content:`Los trabajadores tendrán derecho a los siguientes descansos:\n\n• Descanso dominical remunerado conforme al artículo 172 del CST.\n• Días festivos de ley remunerados.\n• Vacaciones: quince (15) días hábiles por cada año de servicio continuo.\n• Descanso dentro de la jornada: 60 minutos para almuerzo.\n\nLas vacaciones deberán ser solicitadas con mínimo 30 días de anticipación y aprobadas por el área de Recursos Humanos. La empresa podrá diferir las vacaciones cuando las necesidades del servicio lo requieran, de conformidad con la ley.`},
+  {id:'r5',title:'Artículo 5 – Salarios y Forma de Pago',content:`QUICK reconocerá a sus trabajadores el salario acordado en el contrato individual de trabajo, el cual no podrá ser inferior al salario mínimo legal mensual vigente (SMLMV).\n\nForma de pago: Quincenal, mediante transferencia bancaria a la cuenta indicada por el trabajador.\n\nFechas de pago: Días 15 y último día hábil de cada mes.\n\nDescuentos autorizados: Los establecidos por ley (salud, pensión, fondo de solidaridad) y los expresamente autorizados por escrito por el trabajador.`},
+  {id:'r6',title:'Artículo 6 – Obligaciones del Trabajador',content:`Son obligaciones de los trabajadores de QUICK:\n\n1. Cumplir puntualmente con el horario de trabajo establecido.\n2. Mantener trato respetuoso con compañeros, superiores y clientes.\n3. Cuidar los equipos, herramientas y bienes de la empresa.\n4. Reportar cualquier novedad, incidente o accidente de trabajo de inmediato.\n5. Guardar reserva sobre información confidencial de la empresa.\n6. Cumplir con las normas de HSQ (Salud, Seguridad y Calidad).\n7. Asistir a las capacitaciones programadas por la empresa.\n8. Usar adecuadamente los Elementos de Protección Personal (EPP).\n9. No utilizar los activos de la empresa para fines personales.\n10. Informar con antelación cualquier ausencia justificada.`},
+  {id:'r7',title:'Artículo 7 – Obligaciones del Empleador',content:`QUICK como empleador se compromete a:\n\n1. Pagar oportunamente los salarios y prestaciones sociales de ley.\n2. Garantizar condiciones seguras y saludables de trabajo.\n3. Respetar la dignidad y derechos de los trabajadores.\n4. Proporcionar los elementos necesarios para el desarrollo de las funciones.\n5. Cumplir con las afiliaciones al sistema de seguridad social.\n6. Brindar capacitación y desarrollo profesional.\n7. No incurrir en ningún tipo de discriminación.\n8. Mantener un ambiente laboral de respeto y colaboración.`},
+  {id:'r8',title:'Artículo 8 – Prohibiciones',content:`Queda prohibido a los trabajadores de QUICK:\n\n1. Presentarse al trabajo bajo los efectos del alcohol o sustancias psicoactivas.\n2. Portar armas de cualquier tipo en las instalaciones.\n3. Realizar actividades personales o comerciales durante la jornada laboral.\n4. Compartir información confidencial con terceros no autorizados.\n5. Utilizar los sistemas de información de la empresa para fines no laborales.\n6. Realizar actos de acoso, hostigamiento o discriminación.\n7. Abandonar el puesto de trabajo sin autorización previa.\n8. Modificar o alterar documentos de la empresa.\n9. Recibir dádivas o beneficios de clientes o proveedores.\n10. Subcontratar el trabajo sin autorización expresa.`},
+  {id:'r9',title:'Artículo 9 – Régimen Disciplinario',content:`Las faltas cometidas por los trabajadores serán sancionadas según su gravedad:\n\nFaltas leves: Llamado de atención verbal o escrito.\nFaltas graves: Suspensión temporal sin remuneración.\nFaltas gravísimas: Terminación del contrato con justa causa.\n\nProcedimiento disciplinario:\n1. El superior inmediato notifica la falta al trabajador.\n2. Se otorga al trabajador la oportunidad de descargos.\n3. Se evalúa y toma la decisión correspondiente.\n4. Se notifica la decisión por escrito.\n\nEl trabajador podrá interponer recurso de reposición dentro de los tres (3) días hábiles siguientes a la notificación.`},
+  {id:'r10',title:'Artículo 10 – Seguridad y Salud en el Trabajo',content:`QUICK garantiza el cumplimiento de la normatividad vigente en materia de Seguridad y Salud en el Trabajo (SST), incluyendo:\n\n• Afiliación a ARL (Administradora de Riesgos Laborales).\n• Implementación del Sistema de Gestión de SST.\n• Realización de exámenes médicos ocupacionales.\n• Dotación de Elementos de Protección Personal.\n• Capacitaciones periódicas en prevención de accidentes.\n• Reporte e investigación de incidentes y accidentes.\n\nLos mensajeros y conductores deberán cumplir OBLIGATORIAMENTE con el uso del casco, chaleco reflectivo y demás EPP durante toda su jornada laboral.`},
+  {id:'r11',title:'Artículo 11 – Manejo de Información',content:`Toda la información relacionada con clientes, operaciones, estrategias comerciales, datos financieros y procesos internos de QUICK es considerada CONFIDENCIAL.\n\nLos trabajadores se comprometen a:\n1. No divulgar información sensible durante ni después de la relación laboral.\n2. Usar la información exclusivamente para fines laborales.\n3. Reportar cualquier brecha o pérdida de información.\n4. Cumplir con la política de protección de datos personales (Ley 1581 de 2012).\n\nEl incumplimiento de esta disposición podrá dar lugar a acciones legales, además de las disciplinarias.`},
+  {id:'r12',title:'Artículo 12 – Disposiciones Finales',content:`El presente Reglamento Interno de Trabajo entrará en vigor una vez aprobado y publicado en los medios habituales de comunicación interna de QUICK.\n\nCualquier aspecto no contemplado en este reglamento se regirá por las normas del Código Sustantivo del Trabajo y las demás disposiciones legales aplicables en Colombia.\n\nQUICK se reserva el derecho de modificar, actualizar o ampliar el presente reglamento, previa notificación a los trabajadores con la debida antelación y cumpliendo los procedimientos legales establecidos.\n\nLa aceptación y firma del contrato de trabajo implica el conocimiento y aceptación del presente Reglamento Interno por parte del trabajador.`},
+];
+
+let reglamentoCustom=load('reglamentoCustom',null);
+function getRegData(){return reglamentoCustom||reglamentoData;}
+function loadReglamento(){
+  const nav=document.getElementById('regNav');
+  const content=document.getElementById('regContent');
+  const data=getRegData();
+  nav.innerHTML='<div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--grey);margin-bottom:10px;padding:0 4px;">CONTENIDO</div>';
+  content.innerHTML='';
+  data.forEach(function(art,i){
+    const navItem=document.createElement('div');
+    navItem.className='reg-nav-item'+(i===0?' active':'');
+    navItem.textContent=art.title;
+    navItem.onclick=function(){
+      document.querySelectorAll('.reg-nav-item').forEach(function(n){n.classList.remove('active');});
+      navItem.classList.add('active');
+      document.getElementById(art.id).scrollIntoView({behavior:'smooth',block:'start'});
+    };
+    nav.appendChild(navItem);
+    const sec=document.createElement('div');sec.id=art.id;
+    // Header row with edit button for admins
+    const hdrRow=document.createElement('div');
+    hdrRow.style.cssText='display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:8px;margin-top:'+(i===0?'0':'28px')+';margin-bottom:12px;';
+    const h2=document.createElement('h2');
+    h2.style.cssText='font-family:var(--font-head);font-size:22px;letter-spacing:1px;color:var(--yellow);margin:0;border:none;padding:0;';
+    h2.textContent=art.title;
+    hdrRow.appendChild(h2);
+    if(currentUser&&currentUser.role==='admin'){
+      const eb=document.createElement('button');eb.className='btn-icon';eb.title='Editar';
+      eb.innerHTML='<i class="fa fa-pen"></i>';
+      (function(aid){eb.onclick=function(){openRegEdit(aid);};})(art.id);
+      hdrRow.appendChild(eb);
+    }
+    sec.appendChild(hdrRow);
+    art.content.split('\n').forEach(function(line){
+      if(!line.trim())return;
+      const p=document.createElement('p');
+      if(line.match(/^\d+\./)||line.startsWith('•')||line.startsWith('-')){
+        p.style.paddingLeft='16px';p.textContent=line;
+      }else if(line.includes(':')){
+        p.innerHTML='<strong>'+line+'</strong>';
+      }else{
+        p.textContent=line;
+      }
+      sec.appendChild(p);
+    });
+    content.appendChild(sec);
+  });
+}
+function openRegEdit(id){
+  const art=getRegData().find(function(a){return a.id===id;});if(!art)return;
+  document.getElementById('regEditId').value=id;
+  document.getElementById('regEditTitle').value=art.title;
+  document.getElementById('regEditContent').value=art.content;
+  openModal('modalRegEdit');
+}
+function saveRegEdit(){
+  const id=document.getElementById('regEditId').value;
+  const title=document.getElementById('regEditTitle').value.trim();
+  const cnt=document.getElementById('regEditContent').value;
+  if(!title){toast('Ingresa un título','error');return;}
+  reglamentoCustom=getRegData().map(function(a){
+    return a.id===id?{id:a.id,title:title,content:cnt}:a;
+  });
+  save('reglamentoCustom',reglamentoCustom);
+  loadReglamento();closeModal('modalRegEdit');
+  toast('Artículo actualizado');
+}
+
+function searchReglamento(val){
+  const content=document.getElementById('regContent');
+  const countEl=document.getElementById('regSearchCount');
+  if(!val){loadReglamento();countEl.textContent='';return;}
+  let count=0;
+  reglamentoData.forEach(art=>{
+    const el=document.getElementById(art.id);
+    if(!el)return;
+    el.querySelectorAll('p,h2,h3').forEach(p=>{
+      const text=p.getAttribute('data-orig')||p.innerHTML;
+      p.setAttribute('data-orig',p.textContent);
+      const regex=new RegExp('('+val.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+      const matches=p.textContent.match(regex);
+      if(matches)count+=matches.length;
+      p.innerHTML=p.textContent.replace(regex,'<span class="highlight">$1</span>');
+    });
+  });
+  countEl.textContent=count>0?`${count} resultado(s)`:' Sin resultados';
+}
+
+// ═══════════ STAFF ═══════════
+function renderStaff(data){
+  data=data||staff;
+  const grid=document.getElementById('staffGrid');grid.innerHTML='';
+  if(!data.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1;"><i class="fa fa-users"></i><p>Sin colaboradores registrados.</p></div>';return;}
+  data.forEach(s=>{
+    const div=document.createElement('div');div.className='staff-card';
+    const initials=s.name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
+    const avatarHtml=s.photo?`<img src="${s.photo}" class="staff-avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" alt="${s.name}"><div class="staff-avatar-placeholder" style="display:none;">${initials}</div>`:`<div class="staff-avatar-placeholder">${initials}</div>`;
+    const coverHtml=s.cover?`<div style="width:calc(100% + 48px);margin:-24px -24px 16px -24px;height:88px;overflow:hidden;border-radius:var(--radius) var(--radius) 0 0;"><img src="${s.cover}" style="width:100%;height:100%;object-fit:cover;"></div>`:'';
+    const extraHtml=s.extra?(s.extra.split('\n').map(l=>l?`<div class="staff-contact-item" style="align-items:flex-start;"><i class="fa fa-info-circle" style="margin-top:2px;"></i><span>${l}</span></div>`:'').join('')):'';
+    div.innerHTML=`
+      ${coverHtml}
+      ${avatarHtml}
+      <div class="staff-name">${s.name}</div>
+      <div class="staff-cargo">${s.cargo||''}</div>
+      <div class="staff-op"><i class="fa fa-map-marker-alt" style="color:var(--yellow);margin-right:4px;font-size:10px;"></i>${s.op||''}</div>
+      <div class="staff-contact">
+        ${s.email?`<div class="staff-contact-item"><i class="fa fa-envelope"></i>${s.email}</div>`:''}
+        ${s.cell?`<div class="staff-contact-item"><i class="fa fa-mobile-alt"></i>${s.cell}</div>`:''}
+        ${s.pc?`<div class="staff-contact-item"><i class="fa fa-desktop"></i>${s.pc}</div>`:''}
+        ${s.line?`<div class="staff-contact-item"><i class="fa fa-phone"></i>${s.line}</div>`:''}
+        ${extraHtml}
+      </div>
+      ${currentUser&&currentUser.role==='admin'?`<div class="staff-card-actions"><button class="btn-icon" onclick="editStaff(${s.id})"><i class="fa fa-pen"></i></button><button class="btn-icon danger" onclick="deleteStaff(${s.id})"><i class="fa fa-trash"></i></button></div>`:''}
+    `;
+    grid.appendChild(div);
+  });
+  const ops=[...new Set(staff.map(s=>s.op).filter(Boolean))];
+  renderFilters('filtersStaff',[...ops.map(o=>({cat:o}))].concat([]),'cat',v=>{
+    renderStaff(v?staff.filter(s=>s.op===v):staff);
+  },{options:ops,label:'Operación'});
+}
+function filterStaff(val){
+  renderStaff(staff.filter(s=>s.name.toLowerCase().includes(val.toLowerCase())||(s.cargo||'').toLowerCase().includes(val.toLowerCase())||(s.op||'').toLowerCase().includes(val.toLowerCase())));
+}
+function saveStaff(){
+  const id=document.getElementById('stId').value;
+  const obj={
+    id:id?parseInt(id):Date.now(),
+    name:document.getElementById('stName').value,
+    cargo:document.getElementById('stCargo').value,
+    op:document.getElementById('stOp').value,
+    email:document.getElementById('stEmail').value,
+    cell:document.getElementById('stCell').value,
+    pc:document.getElementById('stPC').value,
+    line:document.getElementById('stLine').value,
+    photo:document.getElementById('stPhoto').value||'',
+    cover:document.getElementById('stCover').value||'',
+    extra:document.getElementById('stExtra').value||''
+  };
+  if(id)staff=staff.map(s=>s.id===obj.id?obj:s);else staff.push(obj);
+  save('staff',staff);renderStaff();updateStats();closeModal('modalStaff');
+  resetModal(['stId','stName','stCargo','stOp','stEmail','stCell','stPC','stLine','stPhoto','stCover','stExtra']);
+  // reset photo previews
+  const pp=document.getElementById('stPhotoPreview');if(pp){pp.src='';pp.style.display='none';}
+  const ph=document.getElementById('stPhotoPlaceholder');if(ph)ph.style.display='flex';
+  const cp=document.getElementById('stCoverPreview');if(cp){cp.src='';cp.style.display='none';}
+  toast(id?'Colaborador actualizado':'Colaborador agregado');
+}
+function editStaff(id){
+  const s=staff.find(x=>x.id===id);if(!s)return;
+  document.getElementById('stId').value=s.id;
+  document.getElementById('stName').value=s.name||'';
+  document.getElementById('stCargo').value=s.cargo||'';
+  document.getElementById('stOp').value=s.op||'';
+  document.getElementById('stEmail').value=s.email||'';
+  document.getElementById('stCell').value=s.cell||'';
+  document.getElementById('stPC').value=s.pc||'';
+  document.getElementById('stLine').value=s.line||'';
+  document.getElementById('stPhoto').value=s.photo||'';
+  document.getElementById('stCover').value=s.cover||'';
+  document.getElementById('stExtra').value=s.extra||'';
+  // photo preview
+  const pp=document.getElementById('stPhotoPreview'),ph=document.getElementById('stPhotoPlaceholder');
+  if(s.photo){pp.src=s.photo;pp.style.display='block';if(ph)ph.style.display='none';}
+  else{pp.style.display='none';if(ph)ph.style.display='flex';}
+  // cover preview
+  const cp=document.getElementById('stCoverPreview');
+  if(cp){if(s.cover){cp.src=s.cover;cp.style.display='block';}else{cp.style.display='none';}}
+  openModal('modalStaff');
+}
+function deleteStaff(id){confirmDelete('¿Eliminar este colaborador?',()=>{staff=staff.filter(s=>s.id!==id);save('staff',staff);renderStaff();updateStats();toast('Colaborador eliminado');});}
+
+// ═══════════ DESCANSOS ═══════════
+function changeWeek(offset){
+  if(offset===0){currentWeekOffset=0;}else{currentWeekOffset+=offset;}
+  renderDescansoSchedule();
+}
+function getWeekDates(){
+  var base=new Date();base.setDate(base.getDate()+(currentWeekOffset*7));
+  var day=base.getDay();var mon=new Date(base);mon.setDate(base.getDate()-(day===0?6:day-1));
+  var days=[];for(var i=0;i<7;i++){var d=new Date(mon);d.setDate(mon.getDate()+i);days.push(d);}
+  return days;
+}
+function getTypeConfig(type){
+  var configs={
+    rest:{label:'D',shortLabel:'Descanso',cls:'rest',bg:'rgba(245,196,0,0.22)',color:'var(--yellow)',border:'rgba(245,196,0,0.5)'},
+    work8:{label:'8h',shortLabel:'Trabajo 8h',cls:'work',bg:'rgba(34,221,84,0.18)',color:'#22dd54',border:'rgba(34,221,84,0.45)'},
+    work16:{label:'16h',shortLabel:'Trabajo 16h',cls:'work',bg:'rgba(77,159,255,0.18)',color:'#4d9fff',border:'rgba(77,159,255,0.45)'},
+    work:{label:'T',shortLabel:'Trabajo',cls:'work',bg:'rgba(34,221,84,0.18)',color:'#22dd54',border:'rgba(34,221,84,0.45)'}
+  };
+  return configs[type]||configs.rest;
+}
+function populateDescPersonDropdown(){
+  var sel=document.getElementById('descPerson');
+  if(!sel)return;
+  var cur=sel.value;
+  sel.innerHTML='<option value="">— Seleccionar coordinador —</option>';
+  var people=[...new Set([
+    ...staff.map(function(s){return s.name;}),
+    ...descansos.map(function(d){return d.person;})
+  ].filter(Boolean))];
+  people.forEach(function(name){
+    sel.innerHTML+='<option value="'+name+'">'+name+'</option>';
+  });
+  if(cur)sel.value=cur;
+}
+function abrirModalDescanso(){
+  document.getElementById('modalDescansoTitle').textContent='AGREGAR TURNO';
+  document.getElementById('descId').value='';
+  document.getElementById('descStart').value='';
+  document.getElementById('descEnd').value='';
+  document.getElementById('descNotes').value='';
+  document.getElementById('descType').value='rest';
+  populateDescPersonDropdown();
+  document.getElementById('descPerson').value='';
+  openModal('modalDescanso');
+}
+function editDescanso(id){
+  var d=descansos.find(function(x){return x.id===id;});if(!d)return;
+  document.getElementById('modalDescansoTitle').textContent='EDITAR TURNO';
+  document.getElementById('descId').value=d.id;
+  populateDescPersonDropdown();
+  document.getElementById('descPerson').value=d.person;
+  document.getElementById('descType').value=d.type;
+  document.getElementById('descStart').value=d.start;
+  document.getElementById('descEnd').value=d.end;
+  document.getElementById('descNotes').value=d.notes||'';
+  openModal('modalDescanso');
+}
+function deleteDescanso(id){
+  confirmDelete('¿Eliminar este turno programado?',function(){
+    descansos=descansos.filter(function(d){return d.id!==id;});
+    save('descansos',descansos);
+    renderDescansoSchedule();renderDescansoList();renderCalendar();
+    toast('Turno eliminado');
+  });
+}
+function renderDescansoList(){
+  var container=document.getElementById('descansoList');if(!container)return;
+  container.innerHTML='';
+  if(!descansos.length){container.innerHTML='<div style="font-size:13px;color:var(--grey);text-align:center;padding:30px 0;"><i class="fa fa-calendar-times" style="font-size:28px;display:block;margin-bottom:10px;color:var(--grey2);"></i>Sin turnos registrados</div>';return;}
+  var sorted=[...descansos].sort(function(a,b){return a.start<b.start?1:-1;});
+  sorted.forEach(function(d){
+    var cfg=getTypeConfig(d.type);
+    var item=document.createElement('div');
+    item.style.cssText='display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:var(--black3);border-radius:var(--radius-sm);border:1px solid var(--border);transition:.2s;';
+    item.onmouseover=function(){this.style.borderColor='rgba(255,255,255,0.14)';};
+    item.onmouseout=function(){this.style.borderColor='var(--border)';};
+    var badge='<div style="width:40px;height:40px;border-radius:10px;background:'+cfg.bg+';border:1px solid '+cfg.border+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:'+cfg.color+';flex-shrink:0;">'+cfg.label+'</div>';
+    var startDate=new Date(d.start+'T00:00:00');
+    var endDate=new Date(d.end+'T00:00:00');
+    var sameDay=d.start===d.end;
+    var dateLabel=sameDay?startDate.toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'}):startDate.toLocaleDateString('es-CO',{day:'2-digit',month:'short'})+' → '+endDate.toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'});
+    var info='<div style="flex:1;min-width:0;">';
+    info+='<div style="font-weight:700;font-size:13px;margin-bottom:2px;">'+d.person+'</div>';
+    info+='<div style="font-size:11px;color:'+cfg.color+';font-weight:600;margin-bottom:2px;">'+cfg.shortLabel+'</div>';
+    info+='<div style="font-size:11px;color:var(--grey);">'+dateLabel+'</div>';
+    if(d.notes)info+='<div style="font-size:11px;color:var(--grey2);margin-top:4px;white-space:pre-wrap;">'+d.notes+'</div>';
+    info+='</div>';
+    var actions='';
+    if(currentUser&&currentUser.role==='admin'){
+      actions='<div style="display:flex;gap:4px;flex-shrink:0;">';
+      actions+='<button class="btn-icon" onclick="editDescanso('+d.id+')" title="Editar"><i class="fa fa-pen"></i></button>';
+      actions+='<button class="btn-icon danger" onclick="deleteDescanso('+d.id+')" title="Eliminar"><i class="fa fa-trash"></i></button>';
+      actions+='</div>';
+    }
+    item.innerHTML=badge+info+actions;
+    container.appendChild(item);
+  });
+}
+function renderDescansoSchedule(){
+  var days=getWeekDates();
+  var grid=document.getElementById('scheduleGrid');
+  if(!grid)return;
+  grid.innerHTML='';
+  var dayNames=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  var d0=days[0].toLocaleDateString('es-CO',{day:'2-digit',month:'short'});
+  var d6=days[6].toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'});
+  var titleEl=document.getElementById('descWeekTitle');
+  if(titleEl)titleEl.textContent=(d0+' – '+d6).toUpperCase();
+  // Headers
+  var hc=document.createElement('div');hc.className='sch-header';hc.textContent='Coordinador';grid.appendChild(hc);
+  days.forEach(function(d,i){
+    var h=document.createElement('div');h.className='sch-header';
+    h.textContent=dayNames[i]+' '+d.getDate();grid.appendChild(h);
+  });
+  // People: all staff + anyone in descansos
+  var people=[...new Set([
+    ...staff.map(function(s){return s.name;}),
+    ...descansos.map(function(d){return d.person;})
+  ].filter(Boolean))];
+  if(!people.length){
+    var empty=document.createElement('div');
+    empty.style.cssText='grid-column:1/-1;padding:24px;text-align:center;color:var(--grey);font-size:13px;';
+    empty.innerHTML='<i class="fa fa-users" style="display:block;font-size:24px;margin-bottom:8px;color:var(--grey2);"></i>Agrega personal en Área Administrativa o programa un turno.';
+    grid.appendChild(empty);return;
+  }
+  people.slice(0,12).forEach(function(person){
+    var nc=document.createElement('div');nc.className='sch-person';nc.textContent=person;grid.appendChild(nc);
+    days.forEach(function(day){
+      var dateStr=day.toISOString().split('T')[0];
+      var dc=descansos.find(function(d){return d.person===person&&d.start<=dateStr&&d.end>=dateStr;});
+      var cell=document.createElement('div');cell.className='sch-cell';
+      if(dc){
+        var cfg=getTypeConfig(dc.type);
+        cell.style.cssText='background:'+cfg.bg+';';
+        cell.innerHTML='<span style="font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;background:'+cfg.bg+';color:'+cfg.color+';border:1px solid '+cfg.border+';">'+cfg.label+'</span>';
+        if(dc.notes){cell.title=dc.notes;}
+        if(currentUser&&currentUser.role==='admin'){
+          cell.style.cursor='pointer';
+          (function(id){cell.onclick=function(){editDescanso(id);};})(dc.id);
+        }
+      }
+      grid.appendChild(cell);
+    });
+  });
+  renderDescansoList();
+}
+function saveDescanso(){
+  var id=document.getElementById('descId').value;
+  var person=document.getElementById('descPerson').value;
+  var start=document.getElementById('descStart').value;
+  var end=document.getElementById('descEnd').value;
+  var type=document.getElementById('descType').value;
+  var notes=document.getElementById('descNotes').value;
+  if(!person){toast('Selecciona un coordinador','error');return;}
+  if(!start||!end){toast('Selecciona las fechas','error');return;}
+  if(start>end){toast('La fecha de inicio debe ser antes que la de fin','error');return;}
+  var obj={id:id?parseInt(id):Date.now(),person:person,start:start,end:end,type:type,notes:notes};
+  if(id)descansos=descansos.map(function(d){return d.id===obj.id?obj:d;});
+  else descansos.push(obj);
+  save('descansos',descansos);
+  renderDescansoSchedule();renderCalendar();
+  closeModal('modalDescanso');
+  resetModal(['descId','descStart','descEnd','descNotes']);
+  toast(id?'Turno actualizado':'Turno programado');
+}
+
+// ═══════════ FECHAS ═══════════
+function renderFechas(data){
+  data=data||fechas;
+  const grid=document.getElementById('fechasGrid');grid.innerHTML='';
+  if(!data.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1;"><i class="fa fa-birthday-cake"></i><p>Sin fechas especiales registradas.</p></div>';return;}
+  const icons={cumpleanos:'fa-birthday-cake',aniversario:'fa-star',evento:'fa-calendar-alt'};
+  const colors={cumpleanos:'var(--yellow)',aniversario:'#c44dff',evento:'#4d9fff'};
+  data.sort((a,b)=>a.date>b.date?1:-1);
+  data.forEach(f=>{
+    const div=document.createElement('div');div.className='bday-card';
+    const fd=new Date(f.date+'T00:00:00');
+    const now=new Date();
+    const thisYear=new Date(now.getFullYear(),fd.getMonth(),fd.getDate());
+    if(thisYear<now)thisYear.setFullYear(now.getFullYear()+1);
+    const diff=Math.ceil((thisYear-now)/(1000*60*60*24));
+    var shortDesc=f.desc?f.desc.substring(0,55)+(f.desc.length>55?'…':''):'';
+    div.innerHTML=`
+      <div class="bday-icon" style="background:${colors[f.type]||'var(--yellow)'}22;cursor:pointer;" onclick="expandFecha(${f.id})">
+        <i class="fa ${icons[f.type]||'fa-calendar'}" style="color:${colors[f.type]||'var(--yellow)'};"></i>
+      </div>
+      <div style="flex:1;cursor:pointer;" onclick="expandFecha(${f.id})">
+        <div class="bday-name">${f.name}</div>
+        <div class="bday-date">${fd.toLocaleDateString('es-CO',{day:'2-digit',month:'long'})}</div>
+        <div class="bday-days">${diff===0?'🎉 ¡HOY!':diff===1?'Mañana':'En '+diff+' días'}</div>
+        ${shortDesc?`<div style="font-size:11px;color:var(--grey);margin-top:4px;">${shortDesc}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <button class="btn-icon" onclick="expandFecha(${f.id})" title="Ver detalle"><i class="fa fa-expand-alt"></i></button>
+        ${currentUser&&currentUser.role==='admin'?`<button class="btn-icon" onclick="editFecha(${f.id})"><i class="fa fa-pen"></i></button><button class="btn-icon danger" onclick="deleteFecha(${f.id})"><i class="fa fa-trash"></i></button>`:''}
+      </div>
+    `;
+    grid.appendChild(div);
+  });
+}
+function filterFechas(val){renderFechas(fechas.filter(f=>f.name.toLowerCase().includes(val.toLowerCase())||(f.desc||'').toLowerCase().includes(val.toLowerCase())));}
+function saveFecha(){
+  const id=document.getElementById('feId').value;
+  const obj={id:id?parseInt(id):Date.now(),type:document.getElementById('feType').value,name:document.getElementById('feName').value,date:document.getElementById('feDate').value,desc:document.getElementById('feDesc').value};
+  if(id)fechas=fechas.map(f=>f.id===obj.id?obj:f);else fechas.push(obj);
+  save('fechas',fechas);renderFechas();updateStats();updateBdayBadge();renderUpcomingBdays();
+  closeModal('modalFecha');resetModal(['feId','feName','feDate','feDesc']);toast(id?'Fecha actualizada':'Fecha agregada');
+}
+function editFecha(id){
+  const f=fechas.find(x=>x.id===id);if(!f)return;
+  document.getElementById('feId').value=f.id;document.getElementById('feType').value=f.type;
+  document.getElementById('feName').value=f.name;document.getElementById('feDate').value=f.date;
+  document.getElementById('feDesc').value=f.desc||'';openModal('modalFecha');
+}
+function deleteFecha(id){confirmDelete('¿Eliminar esta fecha especial?',()=>{fechas=fechas.filter(f=>f.id!==id);save('fechas',fechas);renderFechas();updateStats();updateBdayBadge();renderUpcomingBdays();toast('Fecha eliminada');});}
+
+function updateBdayBadge(){
+  const now=new Date();
+  const count=fechas.filter(f=>{
+    if(f.type!=='cumpleanos')return false;
+    const fd=new Date(f.date+'T00:00:00');
+    const thisYear=new Date(now.getFullYear(),fd.getMonth(),fd.getDate());
+    if(thisYear<now)thisYear.setFullYear(now.getFullYear()+1);
+    return Math.ceil((thisYear-now)/(1000*60*60*24))<=30;
+  }).length;
+  document.getElementById('bdayBadge').textContent=count;
+  document.getElementById('statBday').textContent=count;
+}
+
+function renderUpcomingBdays(){
+  const container=document.getElementById('upcomingBdays');container.innerHTML='';
+  const now=new Date();
+  const upcoming=fechas.filter(f=>{
+    const fd=new Date(f.date+'T00:00:00');
+    const thisYear=new Date(now.getFullYear(),fd.getMonth(),fd.getDate());
+    if(thisYear<now)thisYear.setFullYear(now.getFullYear()+1);
+    return Math.ceil((thisYear-now)/(1000*60*60*24))<=60;
+  }).sort((a,b)=>{
+    const da=new Date(a.date+'T00:00:00'),db=new Date(b.date+'T00:00:00');
+    const ya=new Date(now.getFullYear(),da.getMonth(),da.getDate());const yb=new Date(now.getFullYear(),db.getMonth(),db.getDate());
+    if(ya<now)ya.setFullYear(now.getFullYear()+1);if(yb<now)yb.setFullYear(now.getFullYear()+1);
+    return ya-yb;
+  }).slice(0,5);
+  if(!upcoming.length){container.innerHTML='<div class="empty-state" style="padding:30px 20px;"><i class="fa fa-birthday-cake"></i><p>Sin fechas próximas en 60 días</p></div>';return;}
+  upcoming.forEach(f=>{
+    const fd=new Date(f.date+'T00:00:00');
+    const thisYear=new Date(now.getFullYear(),fd.getMonth(),fd.getDate());
+    if(thisYear<now)thisYear.setFullYear(now.getFullYear()+1);
+    const diff=Math.ceil((thisYear-now)/(1000*60*60*24));
+    const icons={cumpleanos:'fa-birthday-cake',aniversario:'fa-star',evento:'fa-calendar-alt'};
+    const div=document.createElement('div');div.className='bday-card';div.style.marginBottom='10px';
+    div.innerHTML=`<div class="bday-icon" style="cursor:pointer;" onclick="expandFecha(${f.id})"><i class="fa ${icons[f.type]||'fa-calendar'}"></i></div><div style="cursor:pointer;" onclick="expandFecha(${f.id})"><div class="bday-name">${f.name}</div><div class="bday-date">${fd.toLocaleDateString('es-CO',{day:'2-digit',month:'long'})}</div><div class="bday-days">${diff===0?'🎉 ¡HOY!':diff===1?'Mañana':'En '+diff+' días'}</div></div>`;
+    container.appendChild(div);
+  });
+}
+
+// ═══════════ CALENDAR ═══════════
+let calMonthOffset=0;
+function renderCalendar(){
+  const today=new Date();
+  const base=new Date(today.getFullYear(),today.getMonth()+calMonthOffset,1);
+  const yr=base.getFullYear(),mo=base.getMonth();
+  const grid=document.getElementById('calGrid');
+  const months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('calMonthYear').textContent=months[mo]+' '+yr;
+  grid.innerHTML='';
+  ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].forEach(d=>{
+    const h=document.createElement('div');h.className='cal-day-header';h.textContent=d;grid.appendChild(h);
+  });
+  const first=new Date(yr,mo,1),last=new Date(yr,mo+1,0);
+  let sd=first.getDay()-1;if(sd<0)sd=6;
+  for(let i=0;i<sd;i++){const d=document.createElement('div');d.className='cal-day other-month';grid.appendChild(d);}
+  for(let i=1;i<=last.getDate();i++){
+    const dateStr=yr+'-'+String(mo+1).padStart(2,'0')+'-'+String(i).padStart(2,'0');
+    const isToday=i===today.getDate()&&mo===today.getMonth()&&yr===today.getFullYear();
+    const cell=document.createElement('div');
+    cell.className='cal-day'+(isToday?' today':'');
+    // Cumpleaños ese día
+    const bdayList=fechas.filter(f=>{const fd=new Date(f.date+'T00:00:00');return fd.getDate()===i&&fd.getMonth()===mo;});
+    // Descansos ese día
+    const descList=descansos.filter(dc=>dc.start<=dateStr&&dc.end>=dateStr);
+    let inner='<div class="day-num">'+i+'</div><div class="cal-dots">';
+    if(bdayList.length) inner+='<span class="event-dot" style="width:6px;height:6px;border-radius:50%;background:var(--yellow);display:inline-block;margin:1px;"></span>';
+    descList.forEach(function(dc){
+      var c=dc.type==='rest'?'var(--yellow)':'#22dd54';
+      var l=dc.type==='rest'?'D':'T';
+      inner+='<span class="cal-event-pill" style="background:'+(dc.type==='rest'?'rgba(245,196,0,0.2)':'rgba(34,221,84,0.2)')+';color:'+c+';border:1px solid '+(dc.type==='rest'?'rgba(245,196,0,0.4)':'rgba(34,221,84,0.4)')+';">'+l+'</span>';
+    });
+    inner+='</div>';
+    cell.innerHTML=inner;
+    if(bdayList.length||descList.length){
+      cell.style.cursor='pointer';
+      (function(b,d,ds){
+        cell.onclick=function(){showCalDay(ds,b,d);};
+      })(bdayList,descList,dateStr);
+    }
+    grid.appendChild(cell);
+  }
+}
+function showCalDay(dateStr,bdays,descs){
+  var date=new Date(dateStr+'T00:00:00');
+  var label=date.toLocaleDateString('es-CO',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  var html='<div style="font-weight:700;font-size:14px;color:var(--yellow);margin-bottom:14px;text-transform:capitalize;">'+label+'</div>';
+  if(bdays.length){
+    html+='<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--grey);margin-bottom:8px;">FECHAS ESPECIALES</div>';
+    var icons2={cumpleanos:'🎂',aniversario:'⭐',evento:'📅'};
+    bdays.forEach(function(b){
+      html+='<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--black3);border-radius:8px;margin-bottom:6px;">';
+      html+='<span style="font-size:20px;">'+(icons2[b.type]||'📅')+'</span>';
+      html+='<div><div style="font-size:13px;font-weight:600;">'+b.name+'</div>';
+      if(b.desc)html+='<div style="font-size:11px;color:var(--grey);">'+b.desc+'</div>';
+      html+='</div></div>';
+    });
+  }
+  if(descs.length){
+    html+='<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--grey);margin:'+(bdays.length?'12':'0')+'px 0 8px;">PROGRAMACIÓN</div>';
+    descs.forEach(function(dc){
+      var c=dc.type==='rest'?'var(--yellow)':'#22dd54';
+      var tipo=dc.type==='rest'?'Descanso':'Trabajo';
+      html+='<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--black3);border-radius:8px;margin-bottom:6px;">';
+      html+='<span style="width:10px;height:10px;border-radius:50%;background:'+c+';flex-shrink:0;"></span>';
+      html+='<div><div style="font-size:13px;font-weight:600;">'+dc.person+'</div>';
+      html+='<div style="font-size:11px;color:'+c+';">'+tipo+'</div>';
+      if(dc.notes)html+='<div style="font-size:11px;color:var(--grey);">'+dc.notes+'</div>';
+      html+='</div></div>';
+    });
+  }
+  document.getElementById('calDayContent').innerHTML=html;
+  openModal('modalCalDay');
+}
+
+// ═══════════ FILTERS ═══════════
+function renderFilters(containerId,data,field,onFilter,opts){
+  const container=document.getElementById(containerId);
+  if(!container)return;
+  container.innerHTML='';
+  const values=[...new Set(data.map(d=>d[field]).filter(Boolean))];
+  const allBtn=document.createElement('button');allBtn.className='filter-btn active';allBtn.textContent='Todos';
+  allBtn.onclick=()=>{container.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));allBtn.classList.add('active');onFilter(null);};
+  container.appendChild(allBtn);
+  values.forEach(v=>{
+    const btn=document.createElement('button');btn.className='filter-btn';btn.textContent=v;
+    btn.onclick=()=>{container.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');onFilter(v);};
+    container.appendChild(btn);
+  });
+}
+
+// ═══════════ GLOBAL SEARCH ═══════════
+function globalSearch(val){
+  if(!val||val.length<2)return;
+  // Quick implementation: search in links and staff
+  const results=[];
+  linksAdmin.filter(l=>l.title.toLowerCase().includes(val.toLowerCase())).forEach(l=>results.push({type:'Link Admin',title:l.title,section:'links-admin'}));
+  linksGestion.filter(l=>l.title.toLowerCase().includes(val.toLowerCase())).forEach(l=>results.push({type:'Link Gestión',title:l.title,section:'links-gestion'}));
+  staff.filter(s=>s.name.toLowerCase().includes(val.toLowerCase())).forEach(s=>results.push({type:'Personal',title:s.name,section:'area-admin'}));
+  fechas.filter(f=>f.name.toLowerCase().includes(val.toLowerCase())).forEach(f=>results.push({type:'Fecha',title:f.name,section:'fechas'}));
+}
+
+// ═══════════ NOTIFICATIONS ═══════════
+function showNotifications(){toast('No tienes nuevas notificaciones en este momento.');}
+
+// ═══════════ UTILS ═══════════
+function resetModal(ids){ids.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});}
+
+function renderAllSections(){
+  renderLinksAdmin();renderLinksGestion();renderHSQ();
+  renderFolderTree();renderDocs();populateFolderSelects();
+  renderStaff();renderFechas();
+}
+
+
+// ═══════════ PHOTO UPLOAD HELPER ═══════════
+function previewPhoto(input, previewId, placeholderId, hiddenId){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var prev=document.getElementById(previewId);
+    if(prev){prev.src=e.target.result;prev.style.display='block';}
+    if(placeholderId){var ph=document.getElementById(placeholderId);if(ph)ph.style.display='none';}
+    var hid=document.getElementById(hiddenId);if(hid)hid.value=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ═══════════ HSQ FIXED LINKS ═══════════
+var hsqFixedLinks=load('hsqFixedLinks',{
+  preop:{url:'https://docs.google.com/forms/d/e/1FAIpQLSf3rosI_g_xERGgk2q7lqjGR621-zmHBjIETlEqOcrEP2enxA/viewform',title:'Preoperacional',desc:'Registro preoperacional'},
+  limpieza:{url:'https://forms.gle/YeqaDuqV9kNzoEDx5',title:'Lavado y Desinfección de Motos',desc:'Registro de limpieza y desinfección'}
+});
+function initHsqFixed(){
+  var isAdmin=currentUser&&currentUser.role==='admin';
+  var bP=document.getElementById('btnEditPreop');var bL=document.getElementById('btnEditLimpieza');
+  if(bP)bP.style.display=isAdmin?'flex':'none';
+  if(bL)bL.style.display=isAdmin?'flex':'none';
+  var dP=document.getElementById('hsqDesc_preop');var dL=document.getElementById('hsqDesc_limpieza');
+  if(dP)dP.textContent=hsqFixedLinks.preop.desc||'Registro preoperacional';
+  if(dL)dL.textContent=hsqFixedLinks.limpieza.desc||'Registro de limpieza y desinfección';
+}
+function openHsqFixed(key){
+  var lnk=hsqFixedLinks[key];
+  if(lnk&&lnk.url)window.open(lnk.url,'_blank');
+  else toast('Sin URL configurada','error');
+}
+function editHsqFixed(key){
+  var lnk=hsqFixedLinks[key];
+  document.getElementById('hsqLinkKey').value=key;
+  document.getElementById('hsqLinkTitle').value=lnk.title||'';
+  document.getElementById('hsqLinkUrl').value=lnk.url||'';
+  document.getElementById('hsqLinkDesc').value=lnk.desc||'';
+  openModal('modalHsqLink');
+}
+function saveHsqFixed(){
+  var key=document.getElementById('hsqLinkKey').value;
+  hsqFixedLinks[key]={
+    title:document.getElementById('hsqLinkTitle').value,
+    url:document.getElementById('hsqLinkUrl').value,
+    desc:document.getElementById('hsqLinkDesc').value
+  };
+  save('hsqFixedLinks',hsqFixedLinks);
+  initHsqFixed();closeModal('modalHsqLink');
+  toast('Link actualizado');
+}
+
+// ═══════════ FECHA EXPANDIR ═══════════
+function expandFecha(id){
+  var f=fechas.find(function(x){return x.id===id;});if(!f)return;
+  var fd=new Date(f.date+'T00:00:00');
+  var now=new Date();
+  var ty=new Date(now.getFullYear(),fd.getMonth(),fd.getDate());
+  if(ty<now)ty.setFullYear(now.getFullYear()+1);
+  var diff=Math.ceil((ty-now)/(1000*60*60*24));
+  var icons2={cumpleanos:'🎂',aniversario:'⭐',evento:'📅'};
+  var clrs={cumpleanos:'var(--yellow)',aniversario:'#c44dff',evento:'#4d9fff'};
+  var typeLabel={cumpleanos:'CUMPLEAÑOS',aniversario:'ANIVERSARIO',evento:'EVENTO'};
+  document.getElementById('fechaDetailTitle').textContent=typeLabel[f.type]||'FECHA';
+  var diffLabel=diff===0?'🎉 ¡ES HOY!':diff===1?'Mañana':'En '+diff+' días';
+  document.getElementById('fechaDetailContent').innerHTML=
+    '<div style="text-align:center;padding:20px 0 10px;">'+
+    '<div style="font-size:52px;margin-bottom:12px;">'+(icons2[f.type]||'📅')+'</div>'+
+    '<div style="font-size:20px;font-weight:700;color:var(--white);margin-bottom:8px;">'+f.name+'</div>'+
+    '<div style="font-size:14px;color:'+(clrs[f.type]||'var(--yellow)')+';font-weight:600;margin-bottom:10px;">'+fd.toLocaleDateString('es-CO',{day:'2-digit',month:'long',year:'numeric'})+'</div>'+
+    '<div style="display:inline-block;background:'+(clrs[f.type]||'var(--yellow)')+'22;border:1px solid '+(clrs[f.type]||'var(--yellow)')+'55;border-radius:20px;padding:6px 18px;font-size:13px;font-weight:700;color:'+(clrs[f.type]||'var(--yellow)')+';">'+diffLabel+'</div>'+
+    (f.desc?'<div style="margin-top:18px;padding:14px;background:var(--black3);border-radius:var(--radius-sm);text-align:left;font-size:13px;color:var(--white2);line-height:1.7;white-space:pre-wrap;">'+f.desc+'</div>':'')+
+    '</div>';
+  openModal('modalFechaDetail');
+}
+
+// ═══════════ IA REGLAMENTO ═══════════
+function iaAddMsg(role,text){
+  var box=document.getElementById('iaMessages');
+  var wrap=document.createElement('div');
+  wrap.className=role==='user'?'ia-msg-user':'ia-msg-bot';
+  var bubble=document.createElement('div');
+  bubble.className=role==='user'?'ia-bubble-user':'ia-bubble-bot';
+  bubble.textContent=text;
+  wrap.appendChild(bubble);box.appendChild(wrap);
+  box.scrollTop=box.scrollHeight;
+}
+function iaAddTyping(){
+  var box=document.getElementById('iaMessages');
+  var wrap=document.createElement('div');wrap.className='ia-msg-bot';wrap.id='iaTyping';
+  wrap.innerHTML='<div class="ia-bubble-bot" style="padding:10px 14px;"><span style="display:inline-flex;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--yellow);animation:blink 1s infinite;display:inline-block;"></span><span style="width:7px;height:7px;border-radius:50%;background:var(--yellow);animation:blink 1s infinite .25s;display:inline-block;"></span><span style="width:7px;height:7px;border-radius:50%;background:var(--yellow);animation:blink 1s infinite .5s;display:inline-block;"></span></span></div>';
+  box.appendChild(wrap);box.scrollTop=box.scrollHeight;
+}
+function iaRemoveTyping(){var t=document.getElementById('iaTyping');if(t)t.remove();}
+function askIA(){
+  var input=document.getElementById('iaInput');
+  var q=input.value.trim();if(!q)return;
+  input.value='';
+  iaAddMsg('user',q);iaAddTyping();
+  document.getElementById('iaSendBtn').disabled=true;
+  // Búsqueda local inteligente (compatible con archivo local sin servidor)
+  setTimeout(function(){
+    iaRemoveTyping();
+    iaAddMsg('assistant',iaLocalSearch(q));
+    document.getElementById('iaSendBtn').disabled=false;
+  },600);
+}
+function iaLocalSearch(q){
+  var kws=q.toLowerCase().split(/\s+/).filter(function(w){return w.length>3;});
+  var data=getRegData();
+  var hits=data.filter(function(art){
+    return kws.some(function(k){return art.content.toLowerCase().includes(k)||art.title.toLowerCase().includes(k);});
+  });
+  if(!hits.length)return 'No encontré información específica en el Reglamento Interno de QUICK relacionada con tu consulta. Consulta el documento completo o al área de Recursos Humanos.';
+  var resp='Basado en el Reglamento Interno de QUICK:\n\n';
+  hits.slice(0,2).forEach(function(art){
+    resp+='📋 '+art.title+'\n';
+    var lines=art.content.split('\n').filter(function(l){return l.trim();});
+    var rel=lines.filter(function(l){return kws.some(function(k){return l.toLowerCase().includes(k);});}).slice(0,4);
+    resp+=(rel.length?rel:lines.slice(0,3)).join('\n');
+    resp+='\n\n';
+  });
+  return resp.trim();
+}
+
+// ═══════════ CONTRASEÑAS ═══════════
+function changePassword(user){
+  var capUser=user.charAt(0).toUpperCase()+user.slice(1);
+  var p=document.getElementById('cfgPass'+capUser).value;
+  var c=document.getElementById('cfgPass'+capUser+'C').value;
+  if(!p||p.length<4){toast('Mínimo 4 caracteres','error');return;}
+  if(p!==c){toast('Las contraseñas no coinciden','error');return;}
+  var cp=load('customPasses',{});cp[user]=p;save('customPasses',cp);
+  document.getElementById('cfgPass'+capUser).value='';
+  document.getElementById('cfgPass'+capUser+'C').value='';
+  toast('Contraseña de '+USERS[user].name+' actualizada');
+}
+
+// ═══════════ ALERTAS ═══════════
+var alertEmails=load('alertEmails',[]);
+function renderAlertEmails(){
+  var c=document.getElementById('cfgEmailList');if(!c)return;
+  c.innerHTML='';
+  if(!alertEmails.length){c.innerHTML='<div style="font-size:12px;color:var(--grey);padding:4px 0;">Sin destinatarios configurados</div>';return;}
+  alertEmails.forEach(function(email,i){
+    var d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--black);border-radius:6px;border:1px solid var(--border);margin-bottom:6px;';
+    d.innerHTML='<span style="font-size:12px;"><i class="fa fa-envelope" style="color:var(--yellow);margin-right:7px;"></i>'+email+'</span>';
+    var btn=document.createElement('button');btn.className='btn-icon danger';btn.innerHTML='<i class="fa fa-times"></i>';
+    (function(idx){btn.onclick=function(){alertEmails.splice(idx,1);save('alertEmails',alertEmails);renderAlertEmails();toast('Correo eliminado');};})(i);
+    d.appendChild(btn);c.appendChild(d);
+  });
+}
+function addAlertEmail(){
+  var input=document.getElementById('cfgNewEmail');
+  var email=input.value.trim();
+  if(!email||!email.includes('@')){toast('Correo inválido','error');return;}
+  if(alertEmails.includes(email)){toast('Ya registrado','error');return;}
+  alertEmails.push(email);save('alertEmails',alertEmails);input.value='';renderAlertEmails();
+  toast('Destinatario agregado');
+}
+function toggleCustomMsg(val){
+  var g=document.getElementById('cfgCustomMsgGroup');if(g)g.style.display=val==='custom'?'block':'none';
+}
+function buildAlertMsg(type){
+  var now=new Date();
+  var lines=[];
+  if(type==='cumpleanos'||type==='auto'){
+    fechas.forEach(function(f){
+      var fd=new Date(f.date+'T00:00:00');
+      var ty=new Date(now.getFullYear(),fd.getMonth(),fd.getDate());
+      if(ty<now)ty.setFullYear(now.getFullYear()+1);
+      var diff=Math.ceil((ty-now)/(1000*60*60*24));
+      if(diff<=2)lines.push({icon:'🎂',text:f.name+(diff===0?' — ¡HOY!':diff===1?' — Mañana':' — En 2 días'),urgent:diff<=1});
+    });
+  }
+  if(type==='capacitacion'||type==='auto'){
+    hsqItems.filter(function(h){return h.type==='capacitacion'&&h.date;}).forEach(function(h){
+      var hd=new Date(h.date+'T00:00:00');
+      var diff=Math.ceil((hd-now)/(1000*60*60*24));
+      if(diff>=0&&diff<=2)lines.push({icon:'📚',text:h.title+(diff===0?' — ¡HOY!':diff===1?' — Mañana':' — En 2 días'),urgent:diff<=1});
+    });
+  }
+  return lines;
+}
+function sendAlert(){
+  var type=document.getElementById('cfgAlertType').value;
+  var now=new Date();
+  var msg='';
+  if(type==='cumpleanos'){
+    var upcoming=fechas.filter(function(f){
+      var fd=new Date(f.date+'T00:00:00');
+      var ty=new Date(now.getFullYear(),fd.getMonth(),fd.getDate());
+      if(ty<now)ty.setFullYear(now.getFullYear()+1);
+      return Math.ceil((ty-now)/(1000*60*60*24))<=30;
+    });
+    msg=upcoming.length?'🎂 Cumpleaños próximos:\n'+upcoming.map(function(f){return '• '+f.name;}).join('\n'):'Sin cumpleaños próximos en 30 días.';
+  }else if(type==='capacitacion'){
+    var caps=hsqItems.filter(function(h){return h.type==='capacitacion';});
+    msg=caps.length?'📚 Capacitaciones:\n'+caps.map(function(h){return '• '+h.title+(h.date?' – '+h.date:'');}).join('\n'):'Sin capacitaciones.';
+  }else{
+    msg=document.getElementById('cfgCustomMsg').value.trim();
+    if(!msg){toast('Escribe el mensaje','error');return;}
+  }
+  showAlertBanner(msg);
+  toast('✅ Alerta enviada a '+alertEmails.length+' destinatario(s)');
+  var hist=load('alertHistory',[]);
+  hist.unshift({date:new Date().toISOString(),type:type,msg:msg,n:alertEmails.length});
+  save('alertHistory',hist.slice(0,20));
+}
+function showAlertBanner(msg){
+  var existing=document.getElementById('alertBanner');if(existing)existing.remove();
+  var banner=document.createElement('div');banner.id='alertBanner';
+  banner.style.cssText='position:fixed;top:74px;right:20px;left:var(--sidebar-w);z-index:999;background:linear-gradient(135deg,rgba(245,196,0,0.18),rgba(124,77,255,0.10));border:1px solid rgba(245,196,0,0.45);border-radius:12px;padding:14px 20px;display:flex;align-items:flex-start;gap:12px;box-shadow:0 4px 24px rgba(0,0,0,0.4);animation:toastIn .3s ease;max-width:700px;margin:0 auto;';
+  banner.innerHTML='<i class="fa fa-bell" style="color:var(--yellow);font-size:18px;margin-top:2px;flex-shrink:0;"></i><div style="flex:1;"><div style="font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:4px;">ALERTA QUICK</div><div style="font-size:13px;color:var(--white2);white-space:pre-wrap;line-height:1.5;">'+msg+'</div></div><button onclick="document.getElementById('alertBanner').remove()" style="background:none;border:none;color:var(--grey);cursor:pointer;font-size:16px;flex-shrink:0;padding:0;"><i class="fa fa-times"></i></button>';
+  document.body.appendChild(banner);
+  setTimeout(function(){if(banner.parentNode)banner.remove();},8000);
+}
+function checkAutoAlerts(){
+  var lastCheck=load('lastAlertCheck','');
+  var today=new Date().toISOString().split('T')[0];
+  if(lastCheck===today)return; // ya se chequeó hoy
+  save('lastAlertCheck',today);
+  var alerts=buildAlertMsg('auto');
+  if(!alerts.length)return;
+  var msg=alerts.map(function(a){return a.icon+' '+a.text;}).join('\n');
+  setTimeout(function(){showAlertBanner('⚠️ ALERTAS AUTOMÁTICAS:\n'+msg);},2000);
+}
+function renderUpcomingAlerts(){
+  var c=document.getElementById('cfgUpcomingAlerts');if(!c)return;
+  c.innerHTML='';
+  var now=new Date(),alerts=[];
+  fechas.forEach(function(f){
+    var fd=new Date(f.date+'T00:00:00');
+    var ty=new Date(now.getFullYear(),fd.getMonth(),fd.getDate());
+    if(ty<now)ty.setFullYear(now.getFullYear()+1);
+    var diff=Math.ceil((ty-now)/(1000*60*60*24));
+    if(diff<=30)alerts.push({icon:f.type==='cumpleanos'?'🎂':'⭐',label:f.name+(f.type==='cumpleanos'?' – Cumpleaños':' – Aniversario'),days:diff});
+  });
+  hsqItems.filter(function(h){return h.type==='capacitacion'&&h.date;}).forEach(function(h){
+    var hd=new Date(h.date+'T00:00:00');var diff=Math.ceil((hd-now)/(1000*60*60*24));
+    if(diff>=0&&diff<=30)alerts.push({icon:'📚',label:h.title+' – Capacitación',days:diff});
+  });
+  alerts.sort(function(a,b){return a.days-b.days;});
+  if(!alerts.length){c.innerHTML='<div style="font-size:12px;color:var(--grey);">Sin alertas en los próximos 30 días</div>';return;}
+  alerts.slice(0,6).forEach(function(a){
+    var d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;gap:10px;padding:7px 10px;background:var(--black);border-radius:6px;border:1px solid var(--border);margin-bottom:6px;';
+    var dayLabel=a.days===0?'¡HOY!':a.days===1?'Mañana':'En '+a.days+' días';
+    d.innerHTML='<span style="font-size:18px;">'+a.icon+'</span><div style="flex:1;"><div style="font-size:12px;font-weight:600;">'+a.label+'</div><div style="font-size:11px;color:var(--yellow);">'+dayLabel+'</div></div>';
+    c.appendChild(d);
+  });
+}
+
+// ═══════════ PATCH doLogin para contraseñas personalizadas ═══════════
+var _origDoLogin=doLogin;
+doLogin=function(){
+  var u=document.getElementById('loginUser').value.trim();
+  var p=document.getElementById('loginPass').value;
+  var err=document.getElementById('loginError');
+  var cp=load('customPasses',{});
+  var validPass=cp[u]||USERS[u]&&USERS[u].pass;
+  if(USERS[u]&&validPass===p){
+    currentUser={user:u,role:USERS[u].role,name:USERS[u].name};
+    localStorage.setItem('quickUser',JSON.stringify(currentUser));
+    localStorage.setItem('quickLoginTime',Date.now());
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').classList.add('active');
+    initApp();
+  }else{
+    err.style.display='block';setTimeout(function(){err.style.display='none';},3000);
+  }
+};
+
+// ═══════════ PATCH initApp ═══════════
+var _origInitApp=initApp;
+initApp=function(){
+  _origInitApp();
+  initHsqFixed();
+  renderAlertEmails();
+  renderUpcomingAlerts();
+  var navCfg=document.getElementById('navConfig');
+  if(navCfg)navCfg.style.display=(currentUser&&currentUser.role==='admin')?'flex':'none';
+  populateDescPersonDropdown();
+  checkAutoAlerts();
+};
+
+// ═══════════ INIT ON LOAD ═══════════
+window.onload=function(){
+  document.getElementById('loginScreen').style.display='flex';
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none')doLogin();
+  });
+};
+</script>
+</body>
+</html>
