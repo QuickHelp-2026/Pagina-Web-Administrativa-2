@@ -3614,6 +3614,56 @@ window.onload=function(){
     if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none')doLogin();
   });
 };
+  <script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "TU_APIKEY",
+  authDomain: "TU_DOMINIO",
+  projectId: "TU_PROJECT_ID",
+  storageBucket: "TU_BUCKET",
+  messagingSenderId: "TU_ID",
+  appId: "TU_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+window.db = db;
+window.collection = collection;
+window.addDoc = addDoc;
+window.getDocs = getDocs;
+window.deleteDoc = deleteDoc;
+window.doc = doc;
+
+console.log("🔥 Firebase conectado");
+  <button onclick="guardarPrueba()">Guardar prueba</button>
+
+<script>
+
+async function guardarPrueba(){
+
+  const nuevaRef = push(ref(db, "pruebas"));
+
+  await set(nuevaRef,{
+    nombre:"Maryu",
+    fecha:new Date().toISOString()
+  });
+
+  alert("Dato guardado");
+
+}
 </script>
 </body>
 </html>
