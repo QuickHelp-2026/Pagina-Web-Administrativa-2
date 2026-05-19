@@ -689,6 +689,9 @@ body{
 .hsq-fixed-card:hover{border-color:var(--border-y)!important;box-shadow:var(--shadow-y)!important;transform:translateY(-2px)!important;}
 .announcement{background:linear-gradient(135deg,rgba(245,196,0,0.07),rgba(124,77,255,0.04))!important;border-color:rgba(245,196,0,0.25)!important;}
 
+/* ── SEARCH HIGHLIGHT ── */
+mark{background:var(--yellow);color:var(--black);border-radius:3px;padding:0 2px;}
+.reg-highlight-row{background:rgba(245,196,0,0.07);border-left:3px solid var(--yellow);padding-left:10px !important;border-radius:0 4px 4px 0;}
 /* ── IA CHAT ── */
 @keyframes blink{0%,100%{opacity:.25;}50%{opacity:1;}}
 #iaMessages::-webkit-scrollbar{width:4px;}
@@ -991,10 +994,22 @@ body{
         <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--grey2);"><div style="width:12px;height:12px;background:rgba(77,159,255,0.2);border-radius:3px;border:1px solid rgba(77,159,255,0.4);"></div>Trabajo 16h</div>
       </div>
     </div>
-    <!-- LISTA DE TURNOS REGISTRADOS -->
-    <div class="card">
-      <h3 style="font-family:var(--font-head);font-size:17px;letter-spacing:1px;color:var(--yellow);margin-bottom:14px;">TURNOS REGISTRADOS</h3>
-      <div id="descansoList" style="display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto;padding-right:4px;"></div>
+    <!-- PANEL DERECHO -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <!-- Gestión de coordinadores visibles -->
+      <div class="card" id="coordManagePanel" style="display:none;">
+        <h3 style="font-family:var(--font-head);font-size:16px;letter-spacing:1px;color:var(--yellow);margin-bottom:12px;"><i class="fa fa-users" style="margin-right:8px;font-size:14px;"></i>COORDINADORES EN VISTA</h3>
+        <div style="font-size:11px;color:var(--grey);margin-bottom:10px;">Activa o desactiva quién aparece en la grilla semanal.</div>
+        <div id="coordVisibilityList" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;"></div>
+      </div>
+      <!-- Lista de turnos -->
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;">
+          <h3 style="font-family:var(--font-head);font-size:17px;letter-spacing:1px;color:var(--yellow);margin:0;">TURNOS REGISTRADOS</h3>
+          <button class="btn-icon" onclick="toggleCoordManage()" title="Gestionar coordinadores visibles" id="btnCoordManage" style="display:none;"><i class="fa fa-users-cog"></i></button>
+        </div>
+        <div id="descansoList" style="display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto;padding-right:4px;"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -1057,6 +1072,15 @@ body{
         </div>
         <div id="cfgCustomMsgGroup" style="display:none;" class="form-group"><label>Mensaje</label><textarea id="cfgCustomMsg" placeholder="Escribe el mensaje..." style="min-height:70px;"></textarea></div>
         <button class="btn-save" onclick="sendAlert()" style="width:100%;"><i class="fa fa-paper-plane" style="margin-right:6px;"></i>Enviar Alerta</button>
+      </div>
+      <div class="cfg-block" style="margin-top:14px;">
+        <div class="cfg-block-label">Envío de Emails (Google Apps Script)</div>
+        <div style="font-size:11px;color:var(--grey);margin-bottom:10px;line-height:1.6;">Para enviar alertas reales por correo, conecta un Google Apps Script:<br>1. Ve a <strong>script.google.com</strong> → Nuevo proyecto<br>2. Pega el código que aparece al presionar el botón inferior<br>3. Publica como app web y copia la URL aquí.</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <input type="text" id="cfgGasUrl" placeholder="https://script.google.com/macros/s/.../exec" style="flex:1;background:var(--black);border:1.5px solid var(--grey2);border-radius:var(--radius-sm);padding:9px 14px;color:var(--white);font-family:var(--font);font-size:13px;outline:none;" value="">
+          <button class="btn-save" onclick="saveGasUrl()" style="flex-shrink:0;"><i class="fa fa-save"></i></button>
+        </div>
+        <button class="btn-icon" onclick="showGASCode()" style="font-size:11px;width:auto;padding:6px 12px;"><i class="fa fa-code" style="margin-right:6px;"></i>Ver código para Apps Script</button>
       </div>
       <div class="cfg-block">
         <div class="cfg-block-label">Próximas alertas (30 días)</div>
@@ -1127,10 +1151,13 @@ body{
       <div class="form-group"><label>Descripción</label><textarea id="hsqDesc" placeholder="Descripción o contenido..."></textarea></div>
       <div class="form-group"><label>Imagen / Portada (opcional)</label>
         <img id="hsqCoverPreview" src="" style="width:100%;max-height:110px;object-fit:cover;border-radius:8px;border:1.5px solid var(--yellow);display:none;margin-bottom:8px;" alt="">
-        <label style="cursor:pointer;background:var(--black3);border:1.5px solid var(--grey2);border-radius:var(--radius-sm);padding:8px 14px;font-size:12px;display:flex;align-items:center;gap:7px;transition:.2s;width:100%;" onmouseover="this.style.borderColor='var(--yellow)'" onmouseout="this.style.borderColor='var(--grey2)'">
-          <i class="fa fa-image" style="color:var(--yellow);"></i>Subir imagen desde computador
-          <input type="file" accept="image/*" style="display:none;" onchange="previewPhoto(this,'hsqCoverPreview',null,'hsqCover')">
-        </label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label style="cursor:pointer;background:var(--black3);border:1.5px solid var(--grey2);border-radius:var(--radius-sm);padding:8px 14px;font-size:12px;display:flex;align-items:center;gap:7px;transition:.2s;flex:1;" onmouseover="this.style.borderColor='var(--yellow)'" onmouseout="this.style.borderColor='var(--grey2)'">
+            <i class="fa fa-image" style="color:var(--yellow);"></i>Subir imagen desde computador
+            <input type="file" accept="image/*" style="display:none;" onchange="previewPhoto(this,'hsqCoverPreview',null,'hsqCover')">
+          </label>
+          <button type="button" onclick="removeHSQCover()" class="btn-icon danger" title="Eliminar imagen"><i class="fa fa-trash"></i></button>
+        </div>
         <input type="hidden" id="hsqCover">
       </div>
       <div class="form-group"><label>URL (opcional)</label><input type="text" id="hsqUrl" placeholder="https://..."></div>
@@ -1205,15 +1232,19 @@ body{
             <i class="fa fa-upload" style="color:var(--yellow);"></i>Subir foto
             <input type="file" accept="image/*" style="display:none;" onchange="previewPhoto(this,'stPhotoPreview','stPhotoPlaceholder','stPhoto')">
           </label>
+          <button type="button" onclick="removeStaffPhoto()" class="btn-icon danger" title="Eliminar foto" style="flex-shrink:0;"><i class="fa fa-trash"></i></button>
         </div>
         <input type="hidden" id="stPhoto">
       </div>
       <div class="form-group"><label>Imagen de Portada / Ilustración</label>
         <img id="stCoverPreview" src="" style="width:100%;max-height:100px;object-fit:cover;border-radius:8px;border:1.5px solid var(--yellow);display:none;margin-bottom:8px;" alt="">
-        <label style="cursor:pointer;background:var(--black3);border:1.5px solid var(--grey2);border-radius:var(--radius-sm);padding:8px 14px;font-size:12px;display:flex;align-items:center;gap:7px;transition:.2s;" onmouseover="this.style.borderColor='var(--yellow)'" onmouseout="this.style.borderColor='var(--grey2)'">
-          <i class="fa fa-image" style="color:var(--yellow);"></i>Subir imagen de portada
-          <input type="file" accept="image/*" style="display:none;" onchange="previewPhoto(this,'stCoverPreview',null,'stCover')">
-        </label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label style="cursor:pointer;background:var(--black3);border:1.5px solid var(--grey2);border-radius:var(--radius-sm);padding:8px 14px;font-size:12px;display:flex;align-items:center;gap:7px;transition:.2s;flex:1;" onmouseover="this.style.borderColor='var(--yellow)'" onmouseout="this.style.borderColor='var(--grey2)'">
+            <i class="fa fa-image" style="color:var(--yellow);"></i>Subir imagen de portada
+            <input type="file" accept="image/*" style="display:none;" onchange="previewPhoto(this,'stCoverPreview',null,'stCover')">
+          </label>
+          <button type="button" onclick="removeStaffCover()" class="btn-icon danger" title="Eliminar portada"><i class="fa fa-trash"></i></button>
+        </div>
         <input type="hidden" id="stCover">
       </div>
       <div class="form-group"><label>Info Adicional</label><textarea id="stExtra" placeholder="Observaciones... (puedes usar saltos de línea)"></textarea></div>
@@ -1366,6 +1397,28 @@ body{
     <div class="modal-header"><div class="modal-title" id="fechaDetailTitle">DETALLE</div><button class="modal-close" onclick="closeModal('modalFechaDetail')"><i class="fa fa-times"></i></button></div>
     <div class="modal-body" id="fechaDetailContent"></div>
     <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('modalFechaDetail')">Cerrar</button></div>
+  </div>
+</div>
+
+
+<!-- Modal: Detalle universal de tarjeta -->
+<div class="modal-overlay" id="modalCardDetail">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div id="cardDetailIcon" style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"></div>
+        <div>
+          <div class="modal-title" id="cardDetailTitle"></div>
+          <div id="cardDetailSubtitle" style="font-size:12px;color:var(--grey);margin-top:2px;"></div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modalCardDetail')"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="cardDetailBody" style="padding-top:8px;"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modalCardDetail')">Cerrar</button>
+      <button class="btn-save" id="cardDetailActionBtn" style="display:none;"></button>
+    </div>
   </div>
 </div>
 
@@ -1673,12 +1726,13 @@ function renderLinksAdmin(data){
   if(!data.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1;"><i class="fa fa-link"></i><p>Sin links administrativos. Agrega el primero.</p></div>';return;}
   data.forEach(l=>{
     const div=document.createElement('div');
-    div.className='link-card';
+    div.className='link-card';div.style.cursor='pointer';
+    div.onclick=function(e){if(!e.target.closest('button')&&!e.target.closest('a'))openCardDetail('link_admin',l.id);};
     div.innerHTML=`
       <div class="link-icon"><i class="fa ${l.icon||'fa-link'}"></i></div>
       <div class="link-info">
         <div class="link-title">${l.title}</div>
-        <div class="link-desc">${l.desc||''}</div>
+        <div class="link-desc" style="white-space:pre-wrap;">${l.desc||''}</div>
         <div class="link-category">${l.cat||''}</div>
         <div class="link-actions">
           <button class="btn-open" onclick="openLink('${l.url}')"><i class="fa fa-external-link-alt"></i> Abrir</button>
@@ -1738,12 +1792,13 @@ function renderLinksGestion(data){
   grid.innerHTML='';
   if(!data.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1;"><i class="fa fa-tasks"></i><p>Sin links de gestión registrados.</p></div>';return;}
   data.forEach(l=>{
-    const div=document.createElement('div');div.className='link-card';
+    const div=document.createElement('div');div.className='link-card';div.style.cursor='pointer';
+    div.onclick=function(e){if(!e.target.closest('button')&&!e.target.closest('a'))openCardDetail('link_gestion',l.id);};
     div.innerHTML=`
       <div class="link-icon"><i class="fa ${l.icon||'fa-file-alt'}"></i></div>
       <div class="link-info">
         <div class="link-title">${l.title}</div>
-        <div class="link-desc">${l.desc||''}</div>
+        <div class="link-desc" style="white-space:pre-wrap;">${l.desc||''}</div>
         <div class="link-category">${l.cat||''}</div>
         <div class="link-actions">
           <button class="btn-open" onclick="openLink('${l.url}')"><i class="fa fa-external-link-alt"></i> Abrir</button>
@@ -1781,7 +1836,8 @@ function renderHSQ(data){
   data.forEach(function(h){
     var div=document.createElement('div');
     div.className='link-card';
-    div.style.cssText='flex-direction:column;padding:0;overflow:hidden;';
+    div.style.cssText='flex-direction:column;padding:0;overflow:hidden;cursor:pointer;';
+    div.onclick=function(e){if(!e.target.closest('button')&&!e.target.closest('a'))openCardDetail('hsq',h.id);};
     var coverHtml='';
     if(h.cover){
       coverHtml='<div style="width:100%;height:100px;overflow:hidden;flex-shrink:0;"><img src="'+h.cover+'" style="width:100%;height:100%;object-fit:cover;"></div>';
@@ -1933,18 +1989,367 @@ function deleteDocument(id){confirmDelete('¿Eliminar este documento?',()=>{docu
 
 // ═══════════ REGLAMENTO ═══════════
 const reglamentoData=[
-  {id:'r1',title:'Artículo 1 – Objeto y Ámbito',content:`El presente Reglamento Interno de Trabajo, elaborado por QUICK, tiene por objeto establecer las normas y disposiciones que regulan las relaciones laborales entre la empresa y sus trabajadores, en cumplimiento de lo dispuesto en el Código Sustantivo del Trabajo de Colombia y demás normas concordantes.\n\nEste reglamento es de obligatorio cumplimiento para todos los trabajadores de QUICK, independientemente de su cargo, tipo de contrato o modalidad de vinculación laboral.`},
-  {id:'r2',title:'Artículo 2 – Condiciones de Admisión',content:`Para ser admitido como trabajador de QUICK, el aspirante deberá cumplir los siguientes requisitos:\n\n1. Ser mayor de edad (18 años cumplidos).\n2. Presentar hoja de vida actualizada con soporte de experiencia laboral.\n3. Aportar fotocopia de la cédula de ciudadanía.\n4. Certificado de antecedentes judiciales vigente.\n5. Exámenes médicos de ingreso aprobados.\n6. Referencias personales y laborales verificables.\n7. No tener contratos vigentes con la competencia directa.\n8. Suscribir el contrato de trabajo en las condiciones acordadas.\n\nLa empresa se reserva el derecho de verificar toda la información suministrada por el aspirante.`},
-  {id:'r3',title:'Artículo 3 – Horarios y Jornada',content:`La jornada ordinaria de trabajo en QUICK es de ocho (8) horas diarias y cuarenta y ocho (48) horas semanales, distribuidas de lunes a sábado.\n\nHorarios generales:\n• Jornada diurna: 7:00 a.m. – 5:00 p.m.\n• Jornada mixta: 12:00 p.m. – 8:00 p.m.\n• Operaciones especiales: según necesidad operativa.\n\nCualquier tiempo trabajado fuera de la jornada ordinaria deberá ser autorizado previamente por el coordinador y se reconocerá como horas extras conforme a la ley.`},
-  {id:'r4',title:'Artículo 4 – Descansos y Vacaciones',content:`Los trabajadores tendrán derecho a los siguientes descansos:\n\n• Descanso dominical remunerado conforme al artículo 172 del CST.\n• Días festivos de ley remunerados.\n• Vacaciones: quince (15) días hábiles por cada año de servicio continuo.\n• Descanso dentro de la jornada: 60 minutos para almuerzo.\n\nLas vacaciones deberán ser solicitadas con mínimo 30 días de anticipación y aprobadas por el área de Recursos Humanos. La empresa podrá diferir las vacaciones cuando las necesidades del servicio lo requieran, de conformidad con la ley.`},
-  {id:'r5',title:'Artículo 5 – Salarios y Forma de Pago',content:`QUICK reconocerá a sus trabajadores el salario acordado en el contrato individual de trabajo, el cual no podrá ser inferior al salario mínimo legal mensual vigente (SMLMV).\n\nForma de pago: Quincenal, mediante transferencia bancaria a la cuenta indicada por el trabajador.\n\nFechas de pago: Días 15 y último día hábil de cada mes.\n\nDescuentos autorizados: Los establecidos por ley (salud, pensión, fondo de solidaridad) y los expresamente autorizados por escrito por el trabajador.`},
-  {id:'r6',title:'Artículo 6 – Obligaciones del Trabajador',content:`Son obligaciones de los trabajadores de QUICK:\n\n1. Cumplir puntualmente con el horario de trabajo establecido.\n2. Mantener trato respetuoso con compañeros, superiores y clientes.\n3. Cuidar los equipos, herramientas y bienes de la empresa.\n4. Reportar cualquier novedad, incidente o accidente de trabajo de inmediato.\n5. Guardar reserva sobre información confidencial de la empresa.\n6. Cumplir con las normas de HSQ (Salud, Seguridad y Calidad).\n7. Asistir a las capacitaciones programadas por la empresa.\n8. Usar adecuadamente los Elementos de Protección Personal (EPP).\n9. No utilizar los activos de la empresa para fines personales.\n10. Informar con antelación cualquier ausencia justificada.`},
-  {id:'r7',title:'Artículo 7 – Obligaciones del Empleador',content:`QUICK como empleador se compromete a:\n\n1. Pagar oportunamente los salarios y prestaciones sociales de ley.\n2. Garantizar condiciones seguras y saludables de trabajo.\n3. Respetar la dignidad y derechos de los trabajadores.\n4. Proporcionar los elementos necesarios para el desarrollo de las funciones.\n5. Cumplir con las afiliaciones al sistema de seguridad social.\n6. Brindar capacitación y desarrollo profesional.\n7. No incurrir en ningún tipo de discriminación.\n8. Mantener un ambiente laboral de respeto y colaboración.`},
-  {id:'r8',title:'Artículo 8 – Prohibiciones',content:`Queda prohibido a los trabajadores de QUICK:\n\n1. Presentarse al trabajo bajo los efectos del alcohol o sustancias psicoactivas.\n2. Portar armas de cualquier tipo en las instalaciones.\n3. Realizar actividades personales o comerciales durante la jornada laboral.\n4. Compartir información confidencial con terceros no autorizados.\n5. Utilizar los sistemas de información de la empresa para fines no laborales.\n6. Realizar actos de acoso, hostigamiento o discriminación.\n7. Abandonar el puesto de trabajo sin autorización previa.\n8. Modificar o alterar documentos de la empresa.\n9. Recibir dádivas o beneficios de clientes o proveedores.\n10. Subcontratar el trabajo sin autorización expresa.`},
-  {id:'r9',title:'Artículo 9 – Régimen Disciplinario',content:`Las faltas cometidas por los trabajadores serán sancionadas según su gravedad:\n\nFaltas leves: Llamado de atención verbal o escrito.\nFaltas graves: Suspensión temporal sin remuneración.\nFaltas gravísimas: Terminación del contrato con justa causa.\n\nProcedimiento disciplinario:\n1. El superior inmediato notifica la falta al trabajador.\n2. Se otorga al trabajador la oportunidad de descargos.\n3. Se evalúa y toma la decisión correspondiente.\n4. Se notifica la decisión por escrito.\n\nEl trabajador podrá interponer recurso de reposición dentro de los tres (3) días hábiles siguientes a la notificación.`},
-  {id:'r10',title:'Artículo 10 – Seguridad y Salud en el Trabajo',content:`QUICK garantiza el cumplimiento de la normatividad vigente en materia de Seguridad y Salud en el Trabajo (SST), incluyendo:\n\n• Afiliación a ARL (Administradora de Riesgos Laborales).\n• Implementación del Sistema de Gestión de SST.\n• Realización de exámenes médicos ocupacionales.\n• Dotación de Elementos de Protección Personal.\n• Capacitaciones periódicas en prevención de accidentes.\n• Reporte e investigación de incidentes y accidentes.\n\nLos mensajeros y conductores deberán cumplir OBLIGATORIAMENTE con el uso del casco, chaleco reflectivo y demás EPP durante toda su jornada laboral.`},
-  {id:'r11',title:'Artículo 11 – Manejo de Información',content:`Toda la información relacionada con clientes, operaciones, estrategias comerciales, datos financieros y procesos internos de QUICK es considerada CONFIDENCIAL.\n\nLos trabajadores se comprometen a:\n1. No divulgar información sensible durante ni después de la relación laboral.\n2. Usar la información exclusivamente para fines laborales.\n3. Reportar cualquier brecha o pérdida de información.\n4. Cumplir con la política de protección de datos personales (Ley 1581 de 2012).\n\nEl incumplimiento de esta disposición podrá dar lugar a acciones legales, además de las disciplinarias.`},
-  {id:'r12',title:'Artículo 12 – Disposiciones Finales',content:`El presente Reglamento Interno de Trabajo entrará en vigor una vez aprobado y publicado en los medios habituales de comunicación interna de QUICK.\n\nCualquier aspecto no contemplado en este reglamento se regirá por las normas del Código Sustantivo del Trabajo y las demás disposiciones legales aplicables en Colombia.\n\nQUICK se reserva el derecho de modificar, actualizar o ampliar el presente reglamento, previa notificación a los trabajadores con la debida antelación y cumpliendo los procedimientos legales establecidos.\n\nLa aceptación y firma del contrato de trabajo implica el conocimiento y aceptación del presente Reglamento Interno por parte del trabajador.`},
+  {id:'r1',title:'CAPÍTULO I – Ámbito de Aplicación (Art. 1)',content:`ARTÍCULO 1. El presente es el Reglamento Interno de Trabajo, prescrito por QUICK con sede principal en Bogotá D.C., y con operación a nivel nacional y a sus disposiciones quedan sometidos todos sus trabajadores en todas las dependencias establecidas y en las que posteriormente se instalen que operen dentro del territorio nacional de la República de Colombia.`},
+  {id:'r2',title:'CAPÍTULO II – Condiciones de Admisión (Art. 2)',content:`ARTÍCULO 2. Quien aspire a ser empleado de QUICK, deberá hacerlo por escrito presentando su hoja de vida acompañada de los siguientes documentos:
+• Documento de identificación: Cédula de Ciudadanía, de extranjería o tarjeta de identidad; según sea el caso.
+• Certificado de idoneidad profesional si el cargo lo requiere.
+• Certificado del empleador con quien haya trabajado donde conste el tiempo de servicio, la índole de la labor ejecutada y el salario devengado.
+• Certificados de los planteles de educación donde hubiere estudiado, si aplica.
+• Dos (2) fotografías recientes.`},
+  {id:'r3',title:'CAPÍTULO III – Período de Prueba (Arts. 3-6)',content:`ARTÍCULO 3. QUICK una vez admitido el aspirante, estipulará un período inicial de prueba de conformidad al Código Sustantivo del Trabajo, que tendrá por objeto apreciar las aptitudes del trabajador y por parte de éste, las conveniencias de las condiciones de trabajo.
+
+ARTÍCULO 4. El período de prueba debe ser estipulado por escrito y en caso contrario los servicios se entienden regulados por las normas generales del contrato de trabajo.
+
+ARTÍCULO 5. El período de prueba no puede exceder los dos (2) meses. En contratos de trabajo a término fijo cuya duración sea inferior a un (1) año, el período de prueba no podrá ser superior a la quinta parte del término inicialmente pactado, sin que pueda exceder de dos (2) meses.
+
+ARTÍCULO 6. Durante el período de prueba, el contrato puede darse por terminado unilateralmente en cualquier momento y sin previo aviso.`},
+  {id:'r4',title:'CAPÍTULO IV – Trabajadores Accidentales (Art. 7)',content:`ARTÍCULO 7. Son meros trabajadores accidentales o transitorios, los que se ocupen en labores de corta duración no mayor de un mes y de índole distinta a las actividades normales de QUICK. Estos trabajadores tendrán los mismos derechos que cualquier otro trabajador de QUICK.`},
+  {id:'r5',title:'CAPÍTULO V – Horario de Trabajo (Arts. 8-14)',content:`ARTÍCULO 8. Los horarios de los trabajadores de QUICK se establecerán respetando siempre la jornada máxima legal vigente establecida en la Ley 2101 de 2021.
+
+PARÁGRAFO 1: Los días laborables para todo el personal son de lunes a sábado, en los turnos y horarios determinados por QUICK. Eventualmente el personal deberá laborar los días domingos y festivos.
+
+PARÁGRAFO 2: Para el Personal Operativo, turnos rotativos estándar:
+• Primer turno: 6:00 a.m. a 2:00 p.m.
+• Segundo turno: 2:00 p.m. a 10:00 p.m.
+• Tercer turno: 10:00 p.m. a 6:00 a.m.
+
+Para el personal administrativo:
+• Hora de entrada: lunes a viernes 08:00 a.m. y sábados 09:00 a.m.
+• Hora de salida: lunes a viernes 05:30 p.m. / Sábados 12:30 p.m.
+• Período de alimentación: 12:00 M a 2:00 P.M.
+
+ARTÍCULO 9. Trabajo suplementario o de horas extras es el que se excede de la jornada ordinaria y en todo caso el que excede la máxima legal.
+
+ARTÍCULO 10. En ningún caso las horas extras podrán exceder de dos (2) horas diarias y doce (12) semanales.
+
+ARTÍCULO 11. Tasas y liquidaciones de recargos:
+• Trabajo nocturno: recargo del 35% sobre el valor ordinario diurno.
+• Trabajo extra diurno: recargo del 25% sobre el valor ordinario diurno.
+• Trabajo extra nocturno: recargo del 75% sobre el valor ordinario diurno.
+
+ARTÍCULO 12. QUICK no reconocerá trabajo suplementario o de horas extras sino cuando expresamente lo autorice.
+
+ARTÍCULO 13. En los casos que el trabajador no asista a laborar y no informe las razones de su ausencia, durante los dos (2) primeros días se tratará de contactar al trabajador; al tercer (3) día se notificará al medio más expedito; si al día siguiente no hay comparecencia, se realizará terminación de contrato con justa causa por ausencia injustificada.
+
+ARTÍCULO 14. DESCONEXIÓN LABORAL. Todos los trabajadores tendrán derecho a la desconexión laboral, de conformidad con lo dispuesto en la ley 2191 de 2022.`},
+  {id:'r6',title:'CAPÍTULO VI – Días de Descanso Legalmente Obligatorios (Arts. 15-16)',content:`ARTÍCULO 15. Serán de descanso obligatorio remunerado los domingos y días de fiesta reconocidos en la legislación laboral: 1 de enero, 6 de enero, 19 de marzo, 1 de mayo, 29 de junio, 20 de julio, 7 de agosto, 15 de agosto, 12 de octubre, 1 de noviembre, 11 de noviembre, 8 y 25 de diciembre, además de los días jueves y viernes santos, Ascensión del Señor, Corpus Christi y Sagrado Corazón de Jesús.
+
+PARÁGRAFO 2 – TRABAJO DOMINICAL Y FESTIVO: El trabajo en domingo y festivos se remunera con un recargo del 75% sobre el salario ordinario en proporción a las horas laboradas.
+
+Se entiende que el trabajo dominical es ocasional cuando el trabajador labora hasta dos domingos durante el mes calendario. Es habitual cuando labore tres o más domingos durante el mes calendario.
+
+ARTÍCULO 16. Cuando por motivo de fiesta no determinada en la Ley, QUICK suspendiere el trabajo, está obligado a pagarlo como si se hubiere realizado.`},
+  {id:'r7',title:'CAPÍTULO VII – Vacaciones Remuneradas (Arts. 17-23)',content:`ARTÍCULO 17. Los trabajadores que hubieren prestado sus servicios durante un (1) año tienen derecho a quince (15) días hábiles consecutivos de vacaciones remuneradas.
+
+ARTÍCULO 18. La época de las vacaciones será señalada por QUICK a más tardar dentro del año subsiguiente. QUICK le dará a conocer al trabajador con quince (15) días de anticipación la fecha en que se le concederán las vacaciones.
+
+ARTÍCULO 19. Si se presenta interrupción justificada en el disfrute de las vacaciones, el trabajador no pierde el derecho a reanudarlas.
+
+ARTÍCULO 20. QUICK y trabajador podrán acordar por escrito que se pague en dinero hasta la mitad de las vacaciones.
+
+ARTÍCULO 21. En todo caso, el trabajador gozará anualmente por lo menos de seis (6) días hábiles continuos de vacaciones, los que no son acumulables. QUICK podrá convenir con el trabajador acumular los días restantes hasta por dos (2) años.
+
+ARTÍCULO 22. Durante el período de vacaciones el trabajador recibirá el salario ordinario que esté devengando el día que comience a disfrutar de ellas.
+
+ARTÍCULO 23. QUICK llevará un registro de vacaciones en el que anotará la fecha de ingreso de cada trabajador, fecha en que toma sus vacaciones, en que las termina y la remuneración.`},
+  {id:'r8',title:'CAPÍTULO VIII – Incapacidades y Permisos (Arts. 24-25)',content:`ARTÍCULO 24. QUICK concederá a sus trabajadores los permisos necesarios para el ejercicio del derecho al sufragio, desempeño de cargos oficiales transitorios, en caso de grave calamidad doméstica debidamente comprobada, para comisiones sindicales y para asistir al entierro de compañeros.
+
+Condiciones:
+• Los permisos generales solo serán concedidos entre las 8 a.m. a las 9 a.m. y después de las 4 p.m.
+• Deben solicitarse por escrito con mínimo tres (3) días de antelación.
+• En casos de citas médicas con EPS, la compañía otorgará máximo 3 horas.
+• Calamidad doméstica: la ausencia podrá ser de 1 hasta 3 días calendario.
+• El trabajador deberá aportar documento idóneo que demuestre la ocurrencia de la calamidad dentro de los tres (3) días hábiles siguientes.
+
+ARTÍCULO 25. Toda persona que falte a trabajar por enfermedad común debe presentar la incapacidad médica expedida por la respectiva EPS sin excepción. El trabajador tiene la obligación de allegarla dentro de los dos (2) días hábiles siguientes a la fecha de su emisión.`},
+  {id:'r9',title:'CAPÍTULO IX – Salario y Forma de Pago (Arts. 26-29)',content:`ARTÍCULO 26. QUICK podrá convenir libremente con el trabajador el salario en sus diversas modalidades, pero siempre respetando el salario mínimo legal o el fijado en los pactos y convenciones colectivas.
+
+Cuando el trabajador devengue un salario ordinario superior a diez (10) salarios mínimos, valdrá la estipulación escrita de salario integral que incluya prestaciones, recargos y beneficios.
+
+ARTÍCULO 27. El pago de los diferentes emolumentos será definido por QUICK según el tipo de nómina mediante la cual sea vinculado el colaborador: quincenal, mensual o especial.
+
+ARTÍCULO 28. QUICK pagará el salario en dinero, por períodos iguales y vencidos. El período de pago para jornales no podrá ser mayor a una semana y para sueldos no mayor a un mes.
+
+ARTÍCULO 29. La compañía garantizará condiciones de trabajo justas, igualdad de oportunidades, salarios justos, cumplimiento de leyes laborales y un entorno de trabajo seguro y saludable.`},
+  {id:'r10',title:'CAPÍTULO X – Servicio Médico y Seguridad (Arts. 30-38)',content:`ARTÍCULO 30. Es obligación de QUICK velar por la salud, seguridad e higiene de los trabajadores a su cargo e implementar actividades permanentes en medicina preventiva y en higiene y seguridad industrial.
+
+ARTÍCULO 31. Los servicios médicos que requieran los trabajadores se prestarán por la E.P.S, A.R.L, o a través de la I.P.S, a la cual estén afiliados.
+
+ARTÍCULO 32. Todo trabajador, desde el mismo día en que se sienta enfermo, deberá comunicarlo al representante de QUICK y dirigirse a su EPS. Si el trabajador no da aviso dentro de los dos (2) días siguientes a la determinación de la incapacidad, su inasistencia se tendrá como injustificada.
+
+ARTÍCULO 33. Los trabajadores deben someterse a las instrucciones y tratamiento que ordena el médico que los haya examinado.
+
+ARTÍCULO 34. Los trabajadores deberán someterse a todas las medidas de higiene y seguridad industrial. El grave incumplimiento faculta a QUICK para la terminación del vínculo laboral por justa causa.
+
+ARTÍCULO 35. En caso de accidente de trabajo, el jefe de la dependencia ordenará inmediatamente la prestación de los primeros auxilios y reportará el mismo a la E.P.S. y la A.R.L.
+
+ARTÍCULO 36. Aún el accidente más leve deberá comunicarse inmediatamente al representante de QUICK para la asistencia médica oportuna.
+
+ARTÍCULO 37. Todas las empresas deberán llevar estadísticas de los accidentes de trabajo y enfermedades profesionales. Todo accidente o enfermedad deberá ser informado a la ARL y EPS dentro de los dos días hábiles siguientes.
+
+ARTÍCULO 38. Tanto QUICK como los trabajadores se someterán a las normas de riesgos laborales del Código Sustantivo del Trabajo.`},
+  {id:'r11',title:'CAPÍTULO XI – Prescripciones de Orden (Art. 39)',content:`ARTÍCULO 39. Los trabajadores tienen como deberes los siguientes:
+• Respeto y subordinación a los superiores.
+• Respeto a sus compañeros de trabajo.
+• Procurar completa armonía con superiores y compañeros en relaciones personales y en la ejecución de labores.
+• Guardar buena conducta en todo sentido y obrar con espíritu de leal colaboración en el orden moral y disciplina general de QUICK.
+• Comportarse de forma correcta y no realizar comentarios que afecten la imagen de QUICK.
+• Ejecutar los trabajos con honradez, buena voluntad y de la mejor manera posible.
+• Hacer las observaciones, reclamos y solicitudes por conducto del respectivo superior de manera fundada, comedida y respetuosa.
+• Observar rigurosamente las medidas y precauciones para el manejo de máquinas o instrumentos de trabajo.
+• Permanecer durante la jornada en el sitio donde debe desempeñar sus labores.
+• Guardar absoluta reserva sobre manuales, programas, información interna o administrativa.
+• Informar ante las autoridades de QUICK la comisión de hechos irregulares o fraudulentos.
+• Asistir al trabajo en adecuadas condiciones de presentación personal.`},
+  {id:'r12',title:'CAPÍTULO XII – Orden Jerárquico (Art. 40)',content:`ARTÍCULO 40. El orden Jerárquico de acuerdo con los cargos existentes en QUICK está establecido de manera formal. Tienen facultades para imponer sanciones disciplinarias la Gerencia de Talento Humano y el Jefe de Talento Humano, designando a quien se considere para impartir la medida.`},
+  {id:'r13',title:'CAPÍTULO XIII – Labores Prohibidas Menores y Mujeres (Arts. 41-42)',content:`ARTÍCULO 41. Queda prohibido emplear mujeres embarazadas y menores de dieciocho (18) años en trabajos peligrosos, insalubres o que requieran grandes esfuerzos; trabajos nocturnos que se prolonguen por más de 5 horas a las mujeres embarazadas; y el trabajo nocturno a menores de 18 años.
+
+ARTÍCULO 42. Los trabajadores menores de 18 años y mayores de 14 que cursen estudios técnicos en el SENA o en institutos reconocidos por el Ministerio de Educación podrán ser empleados en operaciones que a juicio del Ministerio de Trabajo puedan desempeñarse sin grave riesgo, con entrenamiento adecuado y medidas de seguridad.`},
+  {id:'r14',title:'CAPÍTULO XIV – Obligaciones Especiales (Arts. 43-46)',content:`ARTÍCULO 43. Son obligaciones especiales de QUICK:
+• Prestar de inmediato los primeros auxilios en caso de accidentes o enfermedad.
+• Adoptar disposiciones para identificar peligros y evaluar riesgos.
+• Pagar la remuneración pactada en las condiciones, períodos y lugares convenidos.
+• Guardar absoluto respeto a la dignidad personal del trabajador.
+• Conceder licencias necesarias conforme al reglamento.
+• Dar certificación de tiempo de servicio al trabajador que lo solicite.
+• Cumplir este reglamento y mantener el orden, la moralidad y el respeto a las leyes.
+• Garantizar el acceso del trabajador menor de edad a la capacitación laboral.
+• Respetar la libertad de asociación y negociación colectiva.
+
+ARTÍCULO 44. Son obligaciones especiales del trabajador:
+• Realizar personalmente la labor en los términos estipulados.
+• No comunicar a terceros informaciones de naturaleza reservada.
+• Conservar y restituir en buen estado los instrumentos y útiles facilitados.
+• Guardar rigurosamente la moral en las relaciones con superiores y compañeros.
+• Prestar colaboración en caso de siniestro o riesgo inminente.
+• Observar las medidas preventivas higiénicas prescritas.
+• Portar el carnet de QUICK para identificación en horas y lugares de trabajo.
+• Acatar las políticas internas, especialmente la de prevención de alcohol y drogas.
+• Portar los elementos de protección personal (EPP) necesarios.
+• Reportar inmediatamente las incapacidades laborales.
+
+ARTÍCULO 45. QUICK no podrá: deducir o retener salarios sin autorización escrita; obligar a comprar en almacenes propios; exigir dinero para el ingreso al trabajo; limitar el derecho de asociación; hacer propaganda política en sitios de trabajo; cerrar intempestivamente; ejecutar cualquier acto que vulnere los derechos de los trabajadores.
+
+ARTÍCULO 46. Se prohíbe a los trabajadores:
+• Presentarse al trabajo en estado de embriaguez o bajo influencia de narcóticos.
+• Conservar armas de cualquier clase en el sitio de trabajo.
+• Faltar al trabajo sin justa causa o permiso de QUICK.
+• Disminuir intencionalmente el ritmo de ejecución del trabajo.
+• Usar útiles o herramientas de QUICK en objetivos distintos del trabajo.
+• Exigir o recibir primas, porcentajes o recompensas de clientes o proveedores.
+• Ejecutar cualquier acto que ponga en peligro su seguridad o la de terceros.
+• Amenazar o agredir en cualquier forma a superiores, compañeros o clientes.
+• Contribuir a difundir información que atente contra el buen nombre de QUICK.
+• El trabajador tiene prohibido revelar nombre de usuarios y contraseñas suministrados por la compañía.
+• Queda prohibido el uso de la dirección electrónica con fines particulares o comerciales.`},
+  {id:'r15',title:'CAPÍTULO XV – Faltas y Sanciones Disciplinarias (Arts. 47-50)',content:`ARTÍCULO 47. QUICK no puede imponer a sus trabajadores sanciones no previstas en este reglamento.
+
+ARTÍCULO 48. La solicitud de apertura de proceso disciplinario podrá ser realizada por el jefe inmediato, el área de talento humano o cualquier superior jerárquico.
+
+ARTÍCULO 49. La diligencia de descargos es un proceso interno por el cual el empleador cita al trabajador para que rinda declaratoria sobre hechos sujetos a estudio. Principios:
+• Inmediatez: Entre la falta y la citación debe haber un tiempo razonable.
+• Buena fe: Las actuaciones de los trabajadores deberán ceñirse a postulados de buena fe.
+• Entre la citación y la diligencia debe existir un tiempo de 12 a 24 horas.
+• Los trabajadores pueden asistir con un abogado si así lo desean.
+
+ARTÍCULO 50. Si el trabajador no comparece a la citación de descargos sin justificar su inasistencia, QUICK tendrá este hecho como agravante (falta MUY GRAVE) y continuará con el proceso disciplinario hasta su finalización.
+
+─────────────────────────────────────────────
+FALTAS LEVES (hasta que la conducta se reitere, caso en el cual serán GRAVES):
+─────────────────────────────────────────────
+a. Retardo en la hora de entrada sin excusa suficiente.
+   1ª: Llamado de atención por escrito | 2ª: Suspensión hasta 8 días sin remuneración | 3ª: Terminación con justa causa.
+
+b. Uso de celulares en áreas operativas (centros de distribución, almacenamiento, bodegas y cavas).
+   1ª: Llamado de atención | 2ª: Suspensión hasta 8 días | 3ª: Terminación con justa causa.
+
+c. Mal uso o pérdida de las herramientas de trabajo (el colaborador asume el costo).
+   1ª: Llamado de atención | 2ª: Suspensión hasta 8 días | 3ª: Terminación con justa causa.
+
+d. No informar a QUICK sobre multas de tránsito referentes a comparendos.
+   1ª: Llamado de atención | 2ª: Suspensión hasta 8 días | 3ª: Terminación con justa causa.
+
+e. Incumplimiento de las políticas de uso de dotación y política de vestuario.
+   1ª: Llamado de atención | 2ª: Suspensión hasta 8 días | 3ª: Terminación con justa causa.
+
+f. Uso del internet para actividades no corporativas en el horario laboral.
+   1ª: Llamado de atención | 2ª: Suspensión hasta 8 días | 3ª: Terminación con justa causa.
+
+g. Incumplimiento de las políticas y protocolos de QUICK.
+   1ª: Llamado de atención | 2ª: Suspensión hasta 8 días | 3ª: Terminación con justa causa.
+
+j. No presentar soportes de incapacidad de personal a cargo en término no mayor a 2 días hábiles.
+   1ª: Llamado de atención | 2ª: Suspensión hasta 8 días | 3ª: Terminación con justa causa.
+
+k. Incumplimiento de funciones asignadas y/o bajo rendimiento.
+   1ª: Acta de compromiso (8 días) | 2ª: Cuadro comparativo + descargos | 3ª: Terminación con justa causa.
+
+l. No gestionar oportunamente paz y salvos de colaboradores desvinculados (plazo mínimo 3 días hábiles).
+   1ª: Llamado de atención | 2ª: Suspensión hasta 8 días | 3ª: Terminación con justa causa.
+
+m. No realizar la gestión contractual de Otro Si en plazo máximo de 8 días hábiles.
+   1ª: Llamado de atención | 2ª: Suspensión hasta 8 días | 3ª: Terminación con justa causa.
+
+n. No realizar la trazabilidad en la plataforma cuando su cargo así lo requiera.
+   1ª: Llamado de atención | 2ª: Suspensión hasta 8 días | 3ª: Terminación con justa causa.
+
+─────────────────────────────────────────────
+FALTAS GRAVES (hasta que la conducta se reitere, caso en el cual serán MUY GRAVES):
+─────────────────────────────────────────────
+a. Recibir dinero (propina) de los clientes o pagarlo por situaciones ajenas a sus funciones.
+   1ª: Suspensión hasta 8 días | 2ª: Terminación con justa causa.
+
+b. Inasistencia sin justificación y/o abandono de la jornada sin permiso durante un (1) día laboral.
+   1ª: Suspensión hasta 8 días | 2ª: Terminación con justa causa.
+
+c. Tomar descansos no autorizados o dormir durante el horario laboral perjudicando la operación.
+   1ª: Suspensión hasta 8 días | 2ª: Terminación con justa causa.
+
+d. Inasistencia sin justificación durante dos (2) días laborales.
+   1ª: Suspensión hasta 8 días | 2ª: Terminación con justa causa.
+
+e. Inasistencia a capacitaciones de estricto cumplimiento en SST u otra índole que intervenga en su labor.
+   1ª: Suspensión hasta 8 días | 2ª: Terminación con justa causa.
+
+f. Tomarse una incapacidad y no presentar los debidos soportes en término no mayor a 2 días hábiles.
+   1ª: Suspensión hasta 8 días | 2ª: Terminación con justa causa.
+
+g. Incumplimiento del procedimiento/Política de Prevención de Alcohol y Drogas con porte de sustancias alucinógenas.
+   1ª: Suspensión hasta 8 días | 2ª: Terminación con justa causa.
+
+h. Recibir quejas por parte de clientes y/o pérdida de credibilidad de la compañía por incumplimiento o malos tratos.
+   1ª: Suspensión hasta 8 días | 2ª: Terminación con justa causa.
+
+i. Incumplir las disposiciones de seguridad y salud en el trabajo.
+   1ª: Suspensión hasta 8 días | 2ª: Terminación con justa causa.
+
+j. No uso de los elementos de protección personal.
+   1ª: Suspensión hasta 8 días | 2ª: Terminación con justa causa.
+
+k. Uso inapropiado de los elementos de protección personal.
+   1ª: Suspensión hasta 8 días | 2ª: Terminación con justa causa.
+
+l. Realizar cualquier tipo de transacción comercial personal en instalaciones de la empresa o del cliente.
+   1ª: Suspensión hasta 8 días | 2ª: Terminación con justa causa.
+
+m. Inasistencia por falla mecánica cuando el colaborador reciba rodamiento y/o arrendamiento.
+   1ª: Suspensión hasta 8 días | 2ª: Terminación con justa causa.
+
+n. No informar sobre actos de constitución de sociedad que genere competencia desleal.
+   1ª: Suspensión hasta 8 días | 2ª: Terminación con justa causa.
+
+o. Incumplimiento de obligaciones, funciones y/o protocolos de trabajo.
+   1ª: Suspensión hasta 8 días | 2ª: Terminación con justa causa.
+
+─────────────────────────────────────────────
+FALTAS MUY GRAVES (Terminación inmediata con justa causa):
+─────────────────────────────────────────────
+1. Incumplimiento de la cláusula de confidencialidad, exclusividad y política de conflicto de interés.
+2. Incumplimiento de la cláusula de propiedad intelectual por las innovaciones que se realizan en QUICK.
+3. No informar novedades que impidan el uso de la licencia de conducción (sanciones de tránsito, hurto, pérdida, accidentes o daños a terceros).
+4. Uso de plataformas móviles no autorizadas y/o uso de vehículos por los que la compañía reconozca rodamiento para actividades diferentes a las contratadas.
+5. Realizar conductas que perjudiquen la imagen de QUICK ante terceros.
+6. Hurto de elementos, dineros, equipos o cualquier bien en instalaciones propias o de terceros (+ medidas legales).
+7. Insubordinación con jefes inmediatos y superiores en todo el nivel jerárquico.
+8. Falta de respeto, agresiones y/o amenazas entre compañeros, jefes o funcionarios del cliente.
+9. No informar cualquier novedad o asunto que afecte la prestación del servicio o la integridad de personas.
+10. Uso indebido de equipos para distribución de contenidos pornográficos, acoso sexual, discriminación o violencia (+ medidas legales).
+11. Ocultar participación en constitución de sociedad que haga competencia desleal.
+12. Participación en modelos freelance en proyectos de marcas, logos, imagen corporativa, patentes que afecten los intereses de las líneas de negocio del grupo.
+13. Conductas que constituyan acoso laboral según el artículo 7 de la ley 1010 de 2006 (+ medidas legales).
+14. Copiar o transmitir por cualquier medio manuales, programas o documentos de propiedad de la empresa sin autorización (+ medidas legales).
+15. Incumplimiento del procedimiento/Política de Prevención de Alcohol y Drogas y/o consumo de sustancias durante la jornada laboral.
+16. Relacionar cobros de viáticos o gastos de viaje que no correspondan a la realidad, en beneficio propio o de terceros.
+17. Suministrar información falsa a la compañía, manipulación de soportes, documentación y/o planillas.
+18. Suministrar información falsa en cuanto a permisos, licencias, incapacidades, beneficios o auxilios monetarios.
+19. La acumulación de 3 faltas de diferente conducta dentro de un período que no supere los 6 meses.
+20. La acumulación de 2 faltas de diferente conducta o de la misma dentro de los 90 días, o 3 o más faltas dentro de la relación laboral.
+21. No reportar novedad con soporte dentro de término mayor a 3 días hábiles siguientes a la ausencia (configura abandono de cargo).
+22. Inasistencia sin justificación dentro de un término mayor a 3 días hábiles sin presentar los debidos soportes.
+23. Portar armas de cualquier clase en horas y lugares de trabajo.
+24. Asumir la representación de la Compañía sin estar facultado para ello en actos de compra o venta.
+25. Ser reincidente en la accidentalidad, teniendo en cuenta el decreto 1295 y 1072 de 2015.
+26. Ocultar el estado real de salud al momento de ingreso, provocando afectación al bienestar propio, compañeros o la operación.
+27. No informar a la Gerencia de Talento Humano que un familiar labora dentro de la compañía (Política de Conflicto de Intereses).
+28. Incumplimiento de Política de Alcohol y Drogas con porte de sustancias que repercutan en afectación de imagen de Quick ante el Cliente.
+29. Realizar conductas que perjudiquen a la compañía económicamente por omisión en las funciones asignadas.
+30. Realizar daños a instalaciones, elementos o herramientas de propiedad del cliente o de la empresa y no asumir la responsabilidad.
+31. Inasistencia por falta del vehículo o herramienta por término mayor a 3 días cuando el colaborador reciba rodamiento o arrendamiento.
+32. Realizar conductas que perjudiquen la imagen de QUICK ante el cliente y pongan en peligro potencial la relación comercial.
+33. Realizar conductas descritas dentro del artículo 46 del presente Reglamento Interno.
+34. No cumplir con las conductas descritas dentro del artículo 44 del presente Reglamento Interno.
+35. No comparecer injustificadamente a la diligencia de descargos en la fecha y hora citada.
+36. No seguir las recomendaciones y/o instrucciones por parte del área de HSEQ en el desarrollo de sus funciones.`},
+  {id:'r16',title:'CAPÍTULO XVI – Reclamos y Tramitación (Art. 51)',content:`ARTÍCULO 51. Los reclamos de los trabajadores se harán ante el área de Talento Humano, quien los oirá y resolverá en justicia y equidad. El área de Talento Humano podrá disponer de los mecanismos necesarios para dirimir y resolver las situaciones presentadas por los trabajadores.`},
+  {id:'r17',title:'CAPÍTULO XVII – Mecanismos Prevención Acoso Laboral (Arts. 52-54)',content:`ARTÍCULO 52. Los mecanismos de prevención de las conductas de acoso laboral previstos por QUICK constituyen actividades tendientes a generar una conciencia colectiva que promueva el trabajo en condiciones dignas y justas, la armonía entre quienes comparten vida laboral y proteja la intimidad, la honra, la salud mental y la libertad de las personas en el trabajo.
+
+ARTÍCULO 53. Mecanismos previstos por QUICK:
+• Información a los trabajadores sobre la Ley 1010 de 2006, con campañas de divulgación preventiva y capacitaciones.
+• Espacios para el diálogo, círculos de participación para la evaluación periódica de vida laboral.
+• Diseño y aplicación de actividades para establecer valores y hábitos que promuevan vida laboral conviviente.
+• Formular recomendaciones sobre situaciones que pudieren afectar el cumplimiento de tales valores.
+
+ARTÍCULO 54. Procedimiento interno de solución: QUICK tendrá un Comité integrado bipartitamente denominado "Comité de Convivencia Laboral". Este comité:
+• Evaluará en cualquier tiempo la vida laboral de QUICK.
+• Examinará de manera confidencial los casos específicos de acoso laboral.
+• Formulará recomendaciones para reconstruir y mantener vida laboral conviviente.
+• Se reunirá por lo menos cada tres meses.
+• En casos especiales, promoverá compromisos de convivencia.`},
+  {id:'r18',title:'CAPÍTULO XVIII – COPASST (Arts. 55-63)',content:`ARTÍCULO 55. El COPASST se encarga de la promoción y vigilancia de las normas y reglamentos de seguridad y salud en el trabajo dentro de QUICK, garantizando que los riesgos de enfermedad y accidente derivados del trabajo se reduzcan al mínimo.
+
+ARTÍCULO 56. Se llama paritario porque está conformado por igual número de personas en representación de QUICK y de los trabajadores.
+
+ARTÍCULO 57. Puede pertenecer al COPASST todo trabajador de una empresa, sin importar su rango o función.
+
+ARTÍCULO 58. El objetivo central es apoyar las obligaciones de QUICK y generar compromiso, sentido de solidaridad y preocupación por sí mismo y por los compañeros.
+
+ARTÍCULO 61. El número de integrantes depende de la cantidad de empleados:
+• Menos de 10 trabajadores: un Vigía en SST.
+• De 10 a 49 trabajadores: un representante por cada parte.
+• De 50 a 499 empleados: dos representantes por cada parte.
+• De 500 a 999 trabajadores: tres representantes por cada parte.
+• De 1.000 a más empleados: cuatro representantes por cada parte.
+
+ARTÍCULO 62. Los miembros del COPASST se reunirán por lo menos una vez al mes durante el horario de trabajo. Cada miembro tendrá mínimo cuatro horas semanales dentro de la jornada normal para el funcionamiento del comité.
+
+ARTÍCULO 63. Si un trabajador se niega a cumplir las disposiciones de SST determinadas por el COPASST, QUICK está facultado para dar por terminado el contrato con justa causa.`},
+  {id:'r19',title:'CAPÍTULO XIX – Teletrabajo (Arts. 64-73)',content:`ARTÍCULO 64. El presente apartado regula la modalidad de teletrabajo en las empresas de QUICK, de conformidad con la Ley 1221 de 2008 y el Decreto 0884 de 2012.
+
+ARTÍCULO 65. Definiciones:
+• TELETRABAJO: Forma de organización laboral en el marco de un contrato de trabajo, que consiste en el desempeño de actividades remuneradas utilizando TIC para el contacto entre el trabajador y empleador, sin requerir la presencia física del trabajador en un sitio específico.
+• TELETRABAJO AUTÓNOMO: Teletrabajadores que usan su propio domicilio o lugar escogido.
+• TELETRABAJO SUPLEMENTARIO: Teletrabajadores que laboran 2 o 3 días en casa y el resto en oficina.
+• TELETRABAJO MÓVIL: Teletrabajadores sin lugar de trabajo establecido, usando dispositivos móviles.
+
+ARTÍCULO 67. Requisitos para participar en el programa de teletrabajo:
+• Permanencia mínima de 6 meses en la empresa.
+• Diligenciar el formato de solicitud de ingreso al programa.
+• Haber superado el proceso de evaluación de la solicitud.
+• Haber superado la inspección de la estación de teletrabajo propuesta.
+
+ARTÍCULO 70. Los teletrabajadores tendrán los mismos derechos, obligaciones y garantías que los demás trabajadores, incluyendo: protección de seguridad social, remuneración, acceso a formación, protección por maternidad, derecho a desconexión laboral.
+
+ARTÍCULO 71. Requisitos técnicos mínimos:
+• Un computador con las condiciones adecuadas.
+• Una conexión de banda ancha con velocidad adecuada.
+• Una cuenta de correo electrónico.
+• Las demás condiciones técnicas necesarias.
+
+ARTÍCULO 72. El teletrabajador se obliga a:
+• Cumplir las normas de Gestión de Seguridad y Salud en el Trabajo.
+• Suministrar información clara, veraz y completa sobre su estado de salud.
+• Reportar accidentes de trabajo de acuerdo con la legislación vigente.
+• Cumplir con las medidas de seguridad digital.`},
+  {id:'r20',title:'CAPÍTULOS XX al XXIII – Disposiciones Finales (Arts. 74-77)',content:`ARTÍCULO 74. QUICK publicará el presente reglamento en el lugar de trabajo mediante la fijación de dos (2) copias de caracteres legibles, en dos (2) sitios distintos. Adicionalmente se encuentra publicado en la plataforma digital de la compañía.
+
+ARTÍCULO 75. El presente Reglamento entrará a regir ocho (8) días después de su publicación.
+
+ARTÍCULO 76. Desde la fecha que entra en vigencia este reglamento, quedan sin efecto las disposiciones del reglamento que antes de esta fecha haya tenido QUICK.
+
+ARTÍCULO 77. No producirá ningún efecto las cláusulas del reglamento que desmejoren las condiciones del trabajador en relación con lo establecido en las leyes, contratos individuales, pactos, convenciones colectivas o fallos arbitrales, los cuales sustituyen las disposiciones del reglamento en cuanto fueren más favorables al trabajador.
+
+Bogotá D.C., 30 de junio de 2024.
+ROGELIO GIL CRIOLLO – Representante Legal Suplente`},
 ];
 
 let reglamentoCustom=load('reglamentoCustom',null);
@@ -2016,23 +2421,55 @@ function saveRegEdit(){
 }
 
 function searchReglamento(val){
-  const content=document.getElementById('regContent');
-  const countEl=document.getElementById('regSearchCount');
-  if(!val){loadReglamento();countEl.textContent='';return;}
-  let count=0;
-  reglamentoData.forEach(art=>{
-    const el=document.getElementById(art.id);
-    if(!el)return;
-    el.querySelectorAll('p,h2,h3').forEach(p=>{
-      const text=p.getAttribute('data-orig')||p.innerHTML;
-      p.setAttribute('data-orig',p.textContent);
-      const regex=new RegExp('('+val.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
-      const matches=p.textContent.match(regex);
-      if(matches)count+=matches.length;
-      p.innerHTML=p.textContent.replace(regex,'<span class="highlight">$1</span>');
+  var countEl=document.getElementById('regSearchCount');
+  if(!val||val.trim().length<2){loadReglamento();if(countEl)countEl.textContent='';return;}
+  var q=val.trim().toLowerCase();
+  var data=getRegData();
+  var totalHits=0;
+  var content=document.getElementById('regContent');
+  var nav=document.getElementById('regNav');
+  // Rebuild content with highlights
+  content.innerHTML='';
+  nav.innerHTML='<div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--grey);margin-bottom:10px;padding:0 4px;">RESULTADOS</div>';
+  var regex=new RegExp('('+val.trim().replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+  data.forEach(function(art){
+    var lines=art.content.split('\n');
+    var matchingLines=lines.filter(function(l){return l.toLowerCase().includes(q);});
+    if(matchingLines.length===0&&!art.title.toLowerCase().includes(q))return;
+    totalHits+=matchingLines.length||(art.title.toLowerCase().includes(q)?1:0);
+    // Nav entry
+    var navItem=document.createElement('div');
+    navItem.className='reg-nav-item';
+    navItem.textContent=art.title.substring(0,40)+(art.title.length>40?'…':'');
+    (function(id){navItem.onclick=function(){document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});};})(art.id);
+    nav.appendChild(navItem);
+    // Section
+    var sec=document.createElement('div');sec.id=art.id;
+    var hdrRow=document.createElement('div');
+    hdrRow.style.cssText='border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:12px;';
+    var h2=document.createElement('h2');
+    h2.style.cssText='font-family:var(--font-head);font-size:18px;letter-spacing:1px;color:var(--yellow);margin:0;border:none;padding:0;';
+    h2.innerHTML=art.title.replace(regex,'<mark style="background:var(--yellow);color:var(--black);border-radius:3px;padding:0 2px;">$1</mark>');
+    hdrRow.appendChild(h2);
+    sec.appendChild(hdrRow);
+    // Show ALL lines, highlight matches
+    lines.forEach(function(line){
+      if(!line.trim())return;
+      var p=document.createElement('p');
+      var highlighted=line.replace(regex,'<mark style="background:var(--yellow);color:var(--black);border-radius:3px;padding:0 2px;">$1</mark>');
+      if(line.toLowerCase().includes(q)){
+        p.style.cssText='background:rgba(245,196,0,0.08);border-left:3px solid var(--yellow);padding-left:10px;border-radius:0 4px 4px 0;';
+      }
+      p.innerHTML=highlighted;
+      sec.appendChild(p);
     });
+    content.appendChild(sec);
   });
-  countEl.textContent=count>0?`${count} resultado(s)`:' Sin resultados';
+  if(countEl)countEl.textContent=totalHits>0?totalHits+' coincidencia(s) en '+(content.childElementCount)+' artículo(s)':'Sin coincidencias';
+  if(!content.childElementCount){
+    content.innerHTML='<div style="text-align:center;padding:40px;color:var(--grey);"><i class="fa fa-search" style="font-size:32px;display:block;margin-bottom:12px;color:var(--grey2);"></i><div>No se encontraron resultados para <strong style="color:var(--white);">"'+val+'"</strong></div><div style="font-size:12px;margin-top:8px;">Intenta con otra palabra clave</div></div>';
+    nav.innerHTML+='<div style="font-size:12px;color:var(--grey);padding:8px 4px;">Sin resultados</div>';
+  }
 }
 
 // ═══════════ STAFF ═══════════
@@ -2041,7 +2478,8 @@ function renderStaff(data){
   const grid=document.getElementById('staffGrid');grid.innerHTML='';
   if(!data.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1;"><i class="fa fa-users"></i><p>Sin colaboradores registrados.</p></div>';return;}
   data.forEach(s=>{
-    const div=document.createElement('div');div.className='staff-card';
+    const div=document.createElement('div');div.className='staff-card';div.style.cursor='pointer';
+    div.onclick=function(e){if(!e.target.closest('button'))openCardDetail('staff',s.id);};
     const initials=s.name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
     const avatarHtml=s.photo?`<img src="${s.photo}" class="staff-avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" alt="${s.name}"><div class="staff-avatar-placeholder" style="display:none;">${initials}</div>`:`<div class="staff-avatar-placeholder">${initials}</div>`;
     const coverHtml=s.cover?`<div style="width:calc(100% + 48px);margin:-24px -24px 16px -24px;height:88px;overflow:hidden;border-radius:var(--radius) var(--radius) 0 0;"><img src="${s.cover}" style="width:100%;height:100%;object-fit:cover;"></div>`:'';
@@ -2233,11 +2671,16 @@ function renderDescansoSchedule(){
     var h=document.createElement('div');h.className='sch-header';
     h.textContent=dayNames[i]+' '+d.getDate();grid.appendChild(h);
   });
-  // People: all staff + anyone in descansos
-  var people=[...new Set([
+  // People: all staff + anyone in descansos, minus excluded
+  var allPeopleRaw=[...new Set([
     ...staff.map(function(s){return s.name;}),
     ...descansos.map(function(d){return d.person;})
   ].filter(Boolean))];
+  var people=allPeopleRaw.filter(function(name){return !excludedCoords.includes(name);});
+  // Show manage button for admin
+  var managePeople=allPeopleRaw;
+  var btnM=document.getElementById('btnCoordManage');
+  if(btnM)btnM.style.display=(currentUser&&currentUser.role==='admin'&&managePeople.length)?'flex':'none';
   if(!people.length){
     var empty=document.createElement('div');
     empty.style.cssText='grid-column:1/-1;padding:24px;text-align:center;color:var(--grey);font-size:13px;';
@@ -2401,7 +2844,7 @@ function renderCalendar(){
     // Descansos ese día
     const descList=descansos.filter(dc=>dc.start<=dateStr&&dc.end>=dateStr);
     let inner='<div class="day-num">'+i+'</div><div class="cal-dots">';
-    if(bdayList.length) inner+='<span class="event-dot" style="width:6px;height:6px;border-radius:50%;background:var(--yellow);display:inline-block;margin:1px;"></span>';
+    if(bdayList.length) inner+='<span style="font-size:11px;line-height:1;display:inline-block;margin:1px;" title="'+bdayList.map(function(b){return b.name;}).join(', ')+'">🎂</span>';
     descList.forEach(function(dc){
       var c=dc.type==='rest'?'var(--yellow)':'#22dd54';
       var l=dc.type==='rest'?'D':'T';
@@ -2468,13 +2911,66 @@ function renderFilters(containerId,data,field,onFilter,opts){
 
 // ═══════════ GLOBAL SEARCH ═══════════
 function globalSearch(val){
-  if(!val||val.length<2)return;
-  // Quick implementation: search in links and staff
-  const results=[];
-  linksAdmin.filter(l=>l.title.toLowerCase().includes(val.toLowerCase())).forEach(l=>results.push({type:'Link Admin',title:l.title,section:'links-admin'}));
-  linksGestion.filter(l=>l.title.toLowerCase().includes(val.toLowerCase())).forEach(l=>results.push({type:'Link Gestión',title:l.title,section:'links-gestion'}));
-  staff.filter(s=>s.name.toLowerCase().includes(val.toLowerCase())).forEach(s=>results.push({type:'Personal',title:s.name,section:'area-admin'}));
-  fechas.filter(f=>f.name.toLowerCase().includes(val.toLowerCase())).forEach(f=>results.push({type:'Fecha',title:f.name,section:'fechas'}));
+  var dropdown=document.getElementById('globalSearchDropdown');
+  if(!val||val.length<2){if(dropdown)dropdown.style.display='none';return;}
+  var q=val.toLowerCase();
+  var results=[];
+  var icons={links_admin:'fa-link',links_gestion:'fa-link',hsq:'fa-shield-alt',staff:'fa-user',fechas:'fa-birthday-cake',reglamento:'fa-book',documentos:'fa-file'};
+  var colors={links_admin:'var(--yellow)',links_gestion:'#00c9a7',hsq:'#7c4dff',staff:'var(--yellow)',fechas:'#c44dff',reglamento:'#4d9fff',documentos:'var(--grey)'};
+  linksAdmin.filter(function(l){return (l.title||'').toLowerCase().includes(q)||(l.desc||'').toLowerCase().includes(q);}).forEach(function(l){results.push({icon:'fa-link',color:'var(--yellow)',type:'Link Admin',title:l.title,sub:l.cat||'',section:'links-admin'});});
+  linksGestion.filter(function(l){return (l.title||'').toLowerCase().includes(q)||(l.desc||'').toLowerCase().includes(q);}).forEach(function(l){results.push({icon:'fa-link',color:'#00c9a7',type:'Link Gestión',title:l.title,sub:l.cat||'',section:'links-gestion'});});
+  hsqItems.filter(function(h){return (h.title||'').toLowerCase().includes(q)||(h.desc||'').toLowerCase().includes(q);}).forEach(function(h){results.push({icon:'fa-shield-alt',color:'#7c4dff',type:'HSQ',title:h.title,sub:h.type||'',section:'hsq'});});
+  staff.filter(function(s){return (s.name||'').toLowerCase().includes(q)||(s.cargo||'').toLowerCase().includes(q)||(s.op||'').toLowerCase().includes(q);}).forEach(function(s){results.push({icon:'fa-user',color:'var(--yellow)',type:'Personal',title:s.name,sub:s.cargo||'',section:'area-admin'});});
+  fechas.filter(function(f){return (f.name||'').toLowerCase().includes(q)||(f.desc||'').toLowerCase().includes(q);}).forEach(function(f){results.push({icon:'fa-birthday-cake',color:'#c44dff',type:'Fecha',title:f.name,sub:'',section:'fechas'});});
+  getRegData().filter(function(a){return (a.title||'').toLowerCase().includes(q)||(a.content||'').toLowerCase().includes(q);}).forEach(function(a){results.push({icon:'fa-book',color:'#4d9fff',type:'Reglamento',title:a.title,sub:'',section:'reglamento'});});
+  if(!dropdown){
+    dropdown=document.createElement('div');dropdown.id='globalSearchDropdown';
+    dropdown.style.cssText='position:absolute;top:100%;left:0;right:0;background:var(--black3);border:1px solid var(--border);border-radius:var(--radius-sm);z-index:9999;max-height:320px;overflow-y:auto;box-shadow:var(--shadow);margin-top:4px;';
+    document.querySelector('.search-global').style.position='relative';
+    document.querySelector('.search-global').appendChild(dropdown);
+    document.addEventListener('click',function(e){if(!document.querySelector('.search-global').contains(e.target)){dropdown.style.display='none';}});
+  }
+  dropdown.innerHTML='';
+  if(!results.length){
+    dropdown.innerHTML='<div style="padding:16px;text-align:center;color:var(--grey);font-size:13px;"><i class="fa fa-search" style="margin-right:6px;"></i>Sin resultados para "'+val+'"</div>';
+    dropdown.style.display='block';return;
+  }
+  var header=document.createElement('div');
+  header.style.cssText='padding:8px 14px;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--grey);border-bottom:1px solid var(--border);';
+  header.textContent=results.length+' RESULTADO(S)';
+  dropdown.appendChild(header);
+  results.slice(0,12).forEach(function(r){
+    var item=document.createElement('div');
+    item.style.cssText='display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;transition:.15s;border-bottom:1px solid var(--border);';
+    item.onmouseover=function(){this.style.background='var(--black4)';};
+    item.onmouseout=function(){this.style.background='';};
+    item.innerHTML='<div style="width:30px;height:30px;border-radius:8px;background:'+r.color+'22;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa '+r.icon+'" style="color:'+r.color+';font-size:13px;"></i></div>'+
+      '<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.title+'</div>'+
+      '<div style="font-size:11px;color:var(--grey);">'+r.type+(r.sub?' · '+r.sub:'')+'</div></div>'+
+      '<i class="fa fa-chevron-right" style="color:var(--grey2);font-size:10px;"></i>';
+    (function(sec,title){
+      item.onclick=function(){
+        goTo(sec);
+        dropdown.style.display='none';
+        document.getElementById('globalSearchInput').value='';
+        // If reglamento, trigger search
+        if(sec==='reglamento'){
+          setTimeout(function(){
+            var input=document.getElementById('regSearch');
+            if(input){input.value=title.substring(0,20);searchReglamento(input.value);}
+          },300);
+        }
+      };
+    })(r.section,r.title);
+    dropdown.appendChild(item);
+  });
+  if(results.length>12){
+    var more=document.createElement('div');
+    more.style.cssText='padding:8px 14px;text-align:center;font-size:11px;color:var(--grey);';
+    more.textContent='+'+(results.length-12)+' más resultados. Usa el buscador de cada sección.';
+    dropdown.appendChild(more);
+  }
+  dropdown.style.display='block';
 }
 
 // ═══════════ NOTIFICATIONS ═══════════
@@ -2695,10 +3191,19 @@ function sendAlert(){
     if(!msg){toast('Escribe el mensaje','error');return;}
   }
   showAlertBanner(msg);
-  toast('✅ Alerta enviada a '+alertEmails.length+' destinatario(s)');
   var hist=load('alertHistory',[]);
   hist.unshift({date:new Date().toISOString(),type:type,msg:msg,n:alertEmails.length});
   save('alertHistory',hist.slice(0,20));
+  // Intentar enviar por email via GAS
+  var htmlBody='<div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#f5f5f5;border-radius:8px;overflow:hidden;">';
+  htmlBody+='<div style="background:#F5C400;padding:20px;text-align:center;"><h1 style="margin:0;color:#000;font-size:22px;letter-spacing:2px;">⚠️ ALERTA QUICK</h1></div>';
+  htmlBody+='<div style="padding:24px;background:#fff;"><pre style="font-family:sans-serif;white-space:pre-wrap;font-size:14px;line-height:1.7;color:#222;">'+msg+'</pre>';
+  htmlBody+='<hr style="border:none;border-top:1px solid #eee;margin:16px 0;">';
+  htmlBody+='<p style="font-size:12px;color:#888;">Enviado automáticamente desde el Portal QUICK · '+new Date().toLocaleString('es-CO')+'</p></div></div>';
+  sendEmailViaGAS('⚠️ Alerta QUICK – '+new Date().toLocaleDateString('es-CO'),htmlBody).then(function(sent){
+    if(sent)toast('✅ Alerta enviada a '+alertEmails.length+' correo(s)');
+    else toast('📢 Alerta mostrada (configura Apps Script para enviar emails)');
+  });
 }
 function showAlertBanner(msg){
   var existing=document.getElementById('alertBanner');if(existing)existing.remove();
@@ -2774,8 +3279,214 @@ initApp=function(){
   var navCfg=document.getElementById('navConfig');
   if(navCfg)navCfg.style.display=(currentUser&&currentUser.role==='admin')?'flex':'none';
   populateDescPersonDropdown();
+  renderCoordVisibilityList();
   checkAutoAlerts();
+  var gasInput=document.getElementById('cfgGasUrl');if(gasInput&&GAS_URL)gasInput.value=GAS_URL;
 };
+
+
+// ═══════════ CARD DETAIL MODAL (universal) ═══════════
+function openCardDetail(type, id){
+  var modal=document.getElementById('modalCardDetail');
+  var titleEl=document.getElementById('cardDetailTitle');
+  var subtitleEl=document.getElementById('cardDetailSubtitle');
+  var iconEl=document.getElementById('cardDetailIcon');
+  var bodyEl=document.getElementById('cardDetailBody');
+  var actionBtn=document.getElementById('cardDetailActionBtn');
+  actionBtn.style.display='none';
+  bodyEl.innerHTML='';
+
+  if(type==='link_admin'){
+    var item=linksAdmin.find(function(l){return l.id===id;});if(!item)return;
+    iconEl.style.background='rgba(245,196,0,0.15)';
+    iconEl.innerHTML='<i class="fa fa-link" style="color:var(--yellow);"></i>';
+    titleEl.textContent=item.title;
+    subtitleEl.textContent=item.cat||'Link Administrativo';
+    var desc=(item.desc||'').split('\n').map(function(l){return l?'<p style="margin-bottom:6px;line-height:1.6;">'+l+'</p>':''}).join('');
+    bodyEl.innerHTML=(desc||'<p style="color:var(--grey);">Sin descripción</p>')+
+      (item.url?'<div style="margin-top:16px;"><a href="'+item.url+'" target="_blank" class="btn-save" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;"><i class="fa fa-external-link-alt"></i> Abrir Link</a></div>':'');
+  }
+  else if(type==='link_gestion'){
+    var item=linksGestion.find(function(l){return l.id===id;});if(!item)return;
+    iconEl.style.background='rgba(0,201,167,0.15)';
+    iconEl.innerHTML='<i class="fa fa-link" style="color:#00c9a7;"></i>';
+    titleEl.textContent=item.title;
+    subtitleEl.textContent=item.cat||'Link de Gestión';
+    var desc=(item.desc||'').split('\n').map(function(l){return l?'<p style="margin-bottom:6px;line-height:1.6;">'+l+'</p>':''}).join('');
+    bodyEl.innerHTML=(desc||'<p style="color:var(--grey);">Sin descripción</p>')+
+      (item.url?'<div style="margin-top:16px;"><a href="'+item.url+'" target="_blank" class="btn-save" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;"><i class="fa fa-external-link-alt"></i> Abrir Link</a></div>':'');
+  }
+  else if(type==='hsq'){
+    var item=hsqItems.find(function(h){return h.id===id;});if(!item)return;
+    var c={capacitacion:'#7c4dff',anuncio:'var(--yellow)',link:'#00c9a7'}[item.type]||'var(--yellow)';
+    var ic={capacitacion:'fa-graduation-cap',anuncio:'fa-bullhorn',link:'fa-external-link-alt'}[item.type]||'fa-shield-alt';
+    var lbl={capacitacion:'Capacitación',anuncio:'Anuncio',link:'Link'}[item.type]||item.type;
+    iconEl.style.background='rgba(124,77,255,0.15)';
+    iconEl.innerHTML='<i class="fa '+ic+'" style="color:'+c+';"></i>';
+    titleEl.textContent=item.title;
+    subtitleEl.textContent=lbl+(item.date?' · '+item.date:'');
+    var cover=item.cover?'<div style="margin-bottom:14px;border-radius:var(--radius-sm);overflow:hidden;max-height:180px;"><img src="'+item.cover+'" style="width:100%;object-fit:cover;"></div>':'';
+    var desc=(item.desc||'').split('\n').map(function(l){return l?'<p style="margin-bottom:6px;line-height:1.7;">'+l+'</p>':''}).join('');
+    bodyEl.innerHTML=cover+(desc||'<p style="color:var(--grey);">Sin descripción</p>')+
+      (item.url?'<div style="margin-top:16px;"><a href="'+item.url+'" target="_blank" class="btn-save" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;"><i class="fa fa-external-link-alt"></i> Abrir</a></div>':'');
+  }
+  else if(type==='staff'){
+    var item=staff.find(function(s){return s.id===id;});if(!item)return;
+    var initials=item.name.split(' ').map(function(n){return n[0];}).slice(0,2).join('').toUpperCase();
+    iconEl.style.background='rgba(245,196,0,0.15)';
+    iconEl.innerHTML=item.photo?'<img src="'+item.photo+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">':'<div style="width:40px;height:40px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--black);font-size:15px;">'+initials+'</div>';
+    titleEl.textContent=item.name;
+    subtitleEl.textContent=(item.cargo||'')+(item.op?' · '+item.op:'');
+    var cover=item.cover?'<div style="margin-bottom:14px;border-radius:var(--radius-sm);overflow:hidden;max-height:140px;"><img src="'+item.cover+'" style="width:100%;object-fit:cover;"></div>':'';
+    var contacts='';
+    if(item.email)contacts+='<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);"><i class="fa fa-envelope" style="color:var(--yellow);width:16px;"></i><span style="font-size:13px;">'+item.email+'</span></div>';
+    if(item.cell)contacts+='<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);"><i class="fa fa-mobile-alt" style="color:var(--yellow);width:16px;"></i><span style="font-size:13px;">'+item.cell+'</span></div>';
+    if(item.pc)contacts+='<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);"><i class="fa fa-desktop" style="color:var(--yellow);width:16px;"></i><span style="font-size:13px;">'+item.pc+'</span></div>';
+    if(item.line)contacts+='<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);"><i class="fa fa-phone" style="color:var(--yellow);width:16px;"></i><span style="font-size:13px;">'+item.line+'</span></div>';
+    var extra=(item.extra||'').split('\n').filter(function(l){return l.trim();}).map(function(l){return '<p style="margin-bottom:4px;font-size:13px;line-height:1.6;">'+l+'</p>';}).join('');
+    bodyEl.innerHTML=cover+contacts+(extra?'<div style="margin-top:12px;">'+extra+'</div>':'');
+  }
+  else if(type==='bday'){
+    expandFecha(id);return;
+  }
+  openModal('modalCardDetail');
+}
+
+// ═══════════ DELETE IMAGE helpers ═══════════
+function removeStaffPhoto(){
+  document.getElementById('stPhoto').value='';
+  var pp=document.getElementById('stPhotoPreview');if(pp){pp.src='';pp.style.display='none';}
+  var ph=document.getElementById('stPhotoPlaceholder');if(ph)ph.style.display='flex';
+  toast('Foto eliminada');
+}
+function removeStaffCover(){
+  document.getElementById('stCover').value='';
+  var cp=document.getElementById('stCoverPreview');if(cp){cp.src='';cp.style.display='none';}
+  toast('Portada eliminada');
+}
+function removeHSQCover(){
+  document.getElementById('hsqCover').value='';
+  var cp=document.getElementById('hsqCoverPreview');if(cp){cp.src='';cp.style.display='none';}
+  toast('Imagen eliminada');
+}
+
+
+// ═══════════ COORDINADORES VISIBLES EN GRILLA ═══════════
+var excludedCoords=load('excludedCoords',[]);
+function toggleCoordManage(){
+  var panel=document.getElementById('coordManagePanel');
+  if(panel)panel.style.display=panel.style.display==='none'?'block':'none';
+  renderCoordVisibilityList();
+}
+function renderCoordVisibilityList(){
+  var container=document.getElementById('coordVisibilityList');if(!container)return;
+  container.innerHTML='';
+  var allPeople=[...new Set([
+    ...staff.map(function(s){return s.name;}),
+    ...descansos.map(function(d){return d.person;})
+  ].filter(Boolean))];
+  if(!allPeople.length){container.innerHTML='<div style="font-size:12px;color:var(--grey);">Sin personal registrado</div>';return;}
+  allPeople.forEach(function(name){
+    var isHidden=excludedCoords.includes(name);
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--black);border-radius:6px;border:1px solid var(--border);';
+    row.innerHTML='<span style="font-size:12px;font-weight:500;'+(isHidden?'color:var(--grey);text-decoration:line-through;':'')+'">'+name+'</span>'+
+      '<label style="position:relative;display:inline-block;width:34px;height:18px;cursor:pointer;">'+
+      '<input type="checkbox" '+(isHidden?'':'checked')+' style="opacity:0;width:0;height:0;" onchange="toggleCoordVisibility(''+name+'',this.checked)">'+
+      '<span style="position:absolute;inset:0;border-radius:9px;background:'+(isHidden?'var(--grey2)':'var(--yellow)')+';transition:.2s;"></span>'+
+      '<span style="position:absolute;height:14px;width:14px;border-radius:50%;background:#fff;top:2px;left:'+(isHidden?'2':'18')+'px;transition:.2s;"></span>'+
+      '</label>';
+    container.appendChild(row);
+  });
+}
+function toggleCoordVisibility(name,visible){
+  if(visible){excludedCoords=excludedCoords.filter(function(n){return n!==name;});}
+  else{if(!excludedCoords.includes(name))excludedCoords.push(name);}
+  save('excludedCoords',excludedCoords);
+  renderCoordVisibilityList();
+  renderDescansoSchedule();
+}
+
+// ═══════════ EMAIL ALERTS via Google Apps Script ═══════════
+// Instrucciones para habilitar correos reales:
+// 1. Ir a script.google.com → Nuevo proyecto
+// 2. Pegar el código GAS de abajo en Code.gs
+// 3. Publicar → Implementar como aplicación web → Cualquiera puede acceder
+// 4. Copiar la URL y pegarla en GAS_URL abajo
+//
+// Código para Code.gs en Google Apps Script:
+// function doPost(e){
+//   var data=JSON.parse(e.postData.contents);
+//   var emails=data.emails||[];
+//   var subject=data.subject||'Alerta QUICK';
+//   var body=data.body||'';
+//   emails.forEach(function(email){
+//     try{MailApp.sendEmail({to:email,subject:subject,htmlBody:body});}catch(ex){}
+//   });
+//   return ContentService.createTextOutput(JSON.stringify({ok:true})).setMimeType(ContentService.MimeType.JSON);
+// }
+var GAS_URL=load('gasUrl',''); // Guarda aquí tu URL de Apps Script
+
+function setGasUrl(url){
+  if(url)GAS_URL=url;
+  save('gasUrl',GAS_URL);
+  toast('URL de Apps Script guardada');
+}
+
+async function sendEmailViaGAS(subject,bodyHtml){
+  if(!GAS_URL){
+    toast('⚠️ Configura la URL de Google Apps Script en Configuración → Alertas','error');
+    return false;
+  }
+  if(!alertEmails||!alertEmails.length){
+    toast('⚠️ No hay destinatarios configurados','error');
+    return false;
+  }
+  try{
+    await fetch(GAS_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({emails:alertEmails,subject:subject,body:bodyHtml})
+    });
+    return true;
+  }catch(e){
+    console.warn('GAS fetch error:',e);
+    return false;
+  }
+}
+
+
+// ═══════════ GAS URL HELPERS ═══════════
+function saveGasUrl(){
+  var url=document.getElementById('cfgGasUrl').value.trim();
+  setGasUrl(url);
+}
+function showGASCode(){
+  var code=`// PEGA ESTE CÓDIGO EN script.google.com → Code.gs
+function doPost(e){
+  try{
+    var data=JSON.parse(e.postData.contents);
+    var emails=data.emails||[];
+    var subject=data.subject||'Alerta QUICK';
+    var htmlBody=data.body||'';
+    emails.forEach(function(email){
+      try{MailApp.sendEmail({to:email,subject:subject,htmlBody:htmlBody});}catch(ex){}
+    });
+    return ContentService.createTextOutput(JSON.stringify({ok:true,sent:emails.length}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }catch(ex){
+    return ContentService.createTextOutput(JSON.stringify({ok:false,error:ex.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
+  // Show in a simple modal or copy to clipboard
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(code).then(function(){toast('Código copiado al portapapeles ✅');});
+  } else {
+    var ta=document.createElement('textarea');ta.value=code;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    toast('Código copiado al portapapeles ✅');
+  }
+}
 
 // ═══════════ INIT ON LOAD ═══════════
 window.onload=function(){
