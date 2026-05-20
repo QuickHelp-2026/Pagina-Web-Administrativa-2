@@ -3569,8 +3569,6 @@ async function sendEmailViaGAS(subject,bodyHtml){
     return false;
   }
 }
-
-
 // ═══════════ GAS URL HELPERS ═══════════
 function saveGasUrl(){
   var url=document.getElementById('cfgGasUrl').value.trim();
@@ -3602,7 +3600,6 @@ function doPost(e){
     toast('Código copiado al portapapeles ✅');
   }
 }
-
 // ═══════════ INIT ON LOAD ═══════════
 window.onload=function(){
   document.getElementById('loginScreen').style.display='flex';
@@ -3611,8 +3608,6 @@ window.onload=function(){
   });
 };
   </script>
-
-
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -3634,36 +3629,23 @@ const firebaseConfig = {
   appId: "1:1061681404991:web:b862223fe2318b1b10ec8a",
   measurementId: "G-3R5JWYQ154"
 };
-
 const app = initializeApp(firebaseConfig);
-
 const db = getDatabase(app);
-
 window.db = db;
 window.ref = ref;
 window.push = push;
 window.set = set;
-
 console.log("🔥 Firebase conectado");
-
 </script>
-
 <script>
-
 async function guardarPrueba(){
-
   const nuevaRef = push(ref(db, "pruebas"));
-
   await set(nuevaRef,{
     nombre:"Maryu",
     fecha:new Date().toISOString()
   });
-
   alert("Dato guardado");
-
 }
-
 </script>
-
 </body>
 </html>
